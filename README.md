@@ -2,7 +2,7 @@
 
 **Learn Smarter. Remember Longer.**
 
-StudySpark AI is a mobile study companion built with React Native, Expo (SDK 57), Expo Router and TypeScript. This repository currently contains the **project foundation only**: a welcome screen, a home screen that lists the planned study tools (flashcards, quizzes, progress) as *coming soon*, design tokens, reusable UI components and original artwork. No AI features or backend integrations exist yet.
+StudySpark AI is a mobile study companion built with React Native, Expo (SDK 58), Expo Router and TypeScript. This repository currently contains the **project foundation only**: a welcome screen, a home screen that lists the planned study tools (flashcards, quizzes, progress) as *coming soon*, design tokens, reusable UI components and original artwork. No AI features or backend integrations exist yet.
 
 | Item | Value |
 | --- | --- |
@@ -12,9 +12,9 @@ StudySpark AI is a mobile study companion built with React Native, Expo (SDK 57)
 
 > **Before any store release**, replace `com.yourcompany` in `app.json` with your real organisation identifier. Store IDs cannot be changed after the first upload.
 
-## Why Expo SDK 57?
+## Expo SDK version
 
-The App Store / Play Store build of **Expo Go** supports SDK 57 only (checked against `https://api.expo.dev/v2/versions` → `expoGoSdkVersion`). Staying on 57 lets you test on a real phone with the store Expo Go app. Upgrade only after Expo Go supports a newer SDK: `npx expo install expo@^58 --fix`.
+The project uses **Expo SDK 58**, because the App Store build of **Expo Go** moved to SDK 58 and iPhones cannot install an older Expo Go. The project's SDK must match the Expo Go version on your phone. When Expo Go moves to a newer SDK, upgrade with `npx expo install expo@^<sdk> --fix`, then run `npm run check` and `npx expo-doctor`.
 
 ## Windows setup
 
