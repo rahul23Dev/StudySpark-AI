@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none">
+  <!-- Study progress: growing bars, an upward trend line and a completion ring -->
+  <path d="M40 150C28 98 66 46 128 36c52-9 86 10 128 8 40-2 58 40 46 84-12 46-50 82-118 84-70 2-132-14-144-62Z" fill="#FBEFDD"/>
+  <path d="M80 180h168" stroke="#D9CBB2" stroke-width="3" stroke-linecap="round"/>
+  <rect x="100" y="144" width="28" height="36" rx="6" fill="#B8E6E0"/>
+  <rect x="140" y="118" width="28" height="62" rx="6" fill="#7FCFC6"/>
+  <rect x="180" y="92" width="28" height="88" rx="6" fill="#3FA9A3"/>
+  <rect x="220" y="64" width="28" height="116" rx="6" fill="#0E7C7B"/>
+  <path d="M96 128l38-22 40 8 50-56" stroke="#FF7A59" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M208 56h18v18" stroke="#FF7A59" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="72" cy="74" r="22" stroke="#EADFCB" stroke-width="8"/>
+  <path d="M72 52a22 22 0 1 1-22 22" stroke="#0E7C7B" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="72" cy="74" r="6" fill="#FFC94D"/>
+  <path d="M266 40q2 8 10 10q-8 2-10 10q-2-8-10-10q8-2 10-10Z" fill="#FFC94D"/>
+</svg>

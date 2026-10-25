@@ -1,56 +1,83 @@
-# Welcome to your Expo app 👋
+# StudySpark AI
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Learn Smarter. Remember Longer.**
 
-## Get started
+StudySpark AI is a mobile study companion built with React Native, Expo (SDK 57), Expo Router and TypeScript. This repository currently contains the **project foundation only**: a welcome screen, a home screen that lists the planned study tools (flashcards, quizzes, progress) as *coming soon*, design tokens, reusable UI components and original artwork. No AI features or backend integrations exist yet.
 
-1. Install dependencies
+| Item | Value |
+| --- | --- |
+| Expo slug | `studyspark-ai` |
+| Android package | `com.yourcompany.studysparkai` *(placeholder)* |
+| iOS bundle ID | `com.yourcompany.studysparkai` *(placeholder)* |
 
-   ```bash
-   npm install
-   ```
+> **Before any store release**, replace `com.yourcompany` in `app.json` with your real organisation identifier. Store IDs cannot be changed after the first upload.
 
-2. Start the app
+## Why Expo SDK 57?
 
-   ```bash
-   npx expo start
-   ```
+The App Store / Play Store build of **Expo Go** supports SDK 57 only (checked against `https://api.expo.dev/v2/versions` → `expoGoSdkVersion`). Staying on 57 lets you test on a real phone with the store Expo Go app. Upgrade only after Expo Go supports a newer SDK: `npx expo install expo@^58 --fix`.
 
-In the output, you'll find options to open the app in a
+## Windows setup
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Prerequisites:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **Node.js 20 LTS or newer** (tested with Node 24.20 / npm 11.19) – <https://nodejs.org>
+- **Git for Windows** – <https://git-scm.com/download/win>
+- **Expo Go** on your phone (App Store / Google Play), or Android Studio with an emulator for Android.
 
-## Get a fresh project
+No global Expo CLI is needed; everything runs through `npx`.
 
-When you're ready, run:
-
-```bash
-npm run reset-project
+```powershell
+cd F:\MY_PROJECTS\StudySparkAI
+npm install
+copy .env.example .env.local   # optional – no values are required yet
+npm start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Then scan the QR code with Expo Go (Android) or the Camera app (iOS), press `a` for an Android emulator, or `w` for the web preview.
 
-### Other setup steps
+Tip: if Windows Firewall asks about Node.js, allow it on **private** networks so your phone can reach the dev server. If the phone cannot connect, try `npx expo start --tunnel`.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Scripts
 
-## Learn more
+| Command | What it does |
+| --- | --- |
+| `npm start` | Start the Expo dev server |
+| `npm run android` / `ios` / `web` | Start and open on a platform |
+| `npm run typecheck` | TypeScript check (`tsc --noEmit`) |
+| `npm run lint` | ESLint via `expo lint` |
+| `npm test` | Jest + React Native Testing Library |
+| `npm run check` | Type-check, lint and tests together |
+| `npm run assets:reference` | Cut the app artwork out of `design/reference.webp` |
+| `npm run generate:icons` | Rebuild app icon / splash / favicon / logo PNGs from the cropped reference icon |
 
-To learn more about developing your project with Expo, look at the following resources:
+## Project structure
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```
+assets/
+  branding/        Editable SVG sources for the logo, app icon and adaptive icons
+  icons/           Small UI icons (SVG)
+  illustrations/   Feature illustrations (SVG, imported as components)
+  images/          PNGs used by app.json (icon, splash, favicon)
+    reference/     Artwork cropped from the visual reference sheet
+design/            Visual reference sheet (source for the cropped artwork)
+docs/              Project docs (see docs/ASSET_MANIFEST.md)
+scripts/           Developer scripts (icon generation)
+src/
+  app/             Expo Router screens (index = welcome, home = study space)
+  components/      Shared components; ui/ holds the primitives (Button, Card, ...)
+  features/        Feature data and logic (catalog of planned study tools)
+  theme/           Design tokens (colours, spacing, radii, typography, shadows)
+  types/           Ambient type declarations
+  __tests__/       Jest tests
+test/              Jest helpers and mocks
+```
 
-## Join the community
+Path aliases: `@/…` → `src/…`, `@/assets/…` → `assets/…`.
 
-Join our community of developers creating universal apps.
+## Environment variables
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+See `.env.example`. Anything prefixed `EXPO_PUBLIC_` is bundled into the app and visible to users — **never put API keys or secrets there**. AI provider keys will live on a backend in a later phase. Real `.env` files are git-ignored.
+
+## Design
+
+Warm cream background (`#FFF8EE`), deep navy text (`#1B2A4A`), teal primary (`#0E7C7B`) and coral/yellow highlights, rounded cards and soft shadows. Tokens live in `src/theme/tokens.ts`; a test checks that text colour pairs meet WCAG AA contrast. Touch targets are at least 48 pt.

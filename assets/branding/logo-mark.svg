@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- StudySpark AI logo mark: open book with a spark, on a rounded teal tile -->
+  <rect width="120" height="120" rx="28" fill="#0E7C7B"/>
+  <g>
+    <path d="M20 58C36 52 50 55 60 62C70 55 84 52 100 58V102C84 96 70 99 60 106C50 99 36 96 20 102Z" fill="#1B2A4A"/>
+    <path d="M24 54C38 48 52 50 60 58V100C52 92 38 90 24 96Z" fill="#FFFFFF"/>
+    <path d="M96 54C82 48 68 50 60 58V100C68 92 82 90 96 96Z" fill="#FFF8EE"/>
+    <g stroke="#9FD8D2" stroke-width="3" stroke-linecap="round">
+      <path d="M32 66c9-3 17-2 22 1"/>
+      <path d="M32 76c9-3 17-2 22 1"/>
+      <path d="M88 66c-9-3-17-2-22 1"/>
+      <path d="M88 76c-9-3-17-2-22 1"/>
+    </g>
+    <path d="M60 20Q62 34 76 36Q62 38 60 52Q58 38 44 36Q58 34 60 20Z" fill="#FF7A59"/>
+    <path d="M84 19q1.4 5.6 7 7q-5.6 1.4-7 7q-1.4-5.6-7-7q5.6-1.4 7-7Z" fill="#FFC94D"/>
+  </g>
+</svg>

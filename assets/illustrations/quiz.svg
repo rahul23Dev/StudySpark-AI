@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none">
+  <!-- Quiz: clipboard checklist with answered and open questions, plus a star badge -->
+  <path d="M40 150C28 98 66 46 128 36c52-9 86 10 128 8 40-2 58 40 46 84-12 46-50 82-118 84-70 2-132-14-144-62Z" fill="#FBEFDD"/>
+  <ellipse cx="160" cy="204" rx="70" ry="8" fill="#EADFCB"/>
+  <rect x="104" y="44" width="112" height="152" rx="14" fill="#0E7C7B"/>
+  <rect x="114" y="60" width="92" height="126" rx="8" fill="#FFFFFF"/>
+  <rect x="136" y="34" width="48" height="20" rx="6" fill="#1B2A4A"/>
+  <circle cx="160" cy="40" r="3" fill="#FFF8EE"/>
+  <circle cx="132" cy="86" r="9" fill="#0E7C7B"/>
+  <path d="M127.5 86l3 3 6-6" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="148" y="80" width="46" height="6" rx="3" fill="#D6F1EE"/>
+  <rect x="148" y="90" width="30" height="5" rx="2.5" fill="#EADFCB"/>
+  <circle cx="132" cy="118" r="9" fill="#0E7C7B"/>
+  <path d="M127.5 118l3 3 6-6" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="148" y="112" width="46" height="6" rx="3" fill="#D6F1EE"/>
+  <rect x="148" y="122" width="30" height="5" rx="2.5" fill="#EADFCB"/>
+  <circle cx="132" cy="150" r="8" fill="#FFD9CC" stroke="#FF7A59" stroke-width="2.5"/>
+  <rect x="148" y="144" width="46" height="6" rx="3" fill="#FFD9CC"/>
+  <rect x="148" y="154" width="30" height="5" rx="2.5" fill="#EADFCB"/>
+  <circle cx="226" cy="60" r="18" fill="#FFC94D"/>
+  <path d="M226 50L228.47 56.6L235.51 56.91L229.99 61.3L231.88 68.09L226 64.2L220.12 68.09L222.01 61.3L216.49 56.91L223.53 56.6Z" fill="#FFFFFF"/>
+  <path d="M78 64q1.6 6.4 8 8q-6.4 1.6-8 8q-1.6-6.4-8-8q6.4-1.6 8-8Z" fill="#7FCFC6"/>
+</svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none">
+  <!-- Flashcards: a small deck with a question card on top and a flip arrow -->
+  <path d="M40 150C28 98 66 46 128 36c52-9 86 10 128 8 40-2 58 40 46 84-12 46-50 82-118 84-70 2-132-14-144-62Z" fill="#FBEFDD"/>
+  <ellipse cx="164" cy="196" rx="80" ry="8" fill="#EADFCB"/>
+  <rect x="92" y="56" width="136" height="100" rx="16" fill="#7FCFC6" transform="rotate(-8 160 106)"/>
+  <rect x="94" y="62" width="136" height="100" rx="16" fill="#FFD9CC" transform="rotate(4 162 112)"/>
+  <rect x="96" y="74" width="136" height="100" rx="16" fill="#FFFFFF" stroke="#EADFCB" stroke-width="2"/>
+  <path d="M152 108a12 12 0 1 1 17 11c-5 3-7 6-7 11" stroke="#0E7C7B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="162" cy="146" r="4.5" fill="#0E7C7B"/>
+  <path d="M246 84c18 12 20 38 4 54" stroke="#FF7A59" stroke-width="4" stroke-linecap="round"/>
+  <path d="M240 130l10 8 4-12" stroke="#FF7A59" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M74 54q2 8 10 10q-8 2-10 10q-2-8-10-10q8-2 10-10Z" fill="#FFC94D"/>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Android 13+ themed (monochrome) icon: single-colour silhouette, tinted by the OS -->
+  <g transform="translate(24 24) scale(0.6)" fill="#000000">
+    <path d="M24 54C38 48 52 50 58 56V100C50 92 38 90 24 96Z"/>
+    <path d="M96 54C82 48 68 50 62 56V100C70 92 82 90 96 96Z"/>
+    <path d="M60 20Q62 34 76 36Q62 38 60 52Q58 38 44 36Q58 34 60 20Z"/>
+    <path d="M84 19q1.4 5.6 7 7q-5.6 1.4-7 7q-1.4-5.6-7-7q5.6-1.4 7-7Z"/>
+  </g>
+</svg>
