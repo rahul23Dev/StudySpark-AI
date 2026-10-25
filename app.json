@@ -5,18 +5,20 @@
     "description": "Learn Smarter. Remember Longer.",
     "version": "0.1.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/icons/app-icon.png",
     "scheme": "studysparkai",
     "userInterfaceStyle": "light",
-    "backgroundColor": "#FFF8EE",
+    "backgroundColor": "#FFF9F0",
     "ios": {
       "bundleIdentifier": "com.yourcompany.studysparkai",
       "supportsTablet": true
     },
     "android": {
       "package": "com.yourcompany.studysparkai",
+      "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
-        "backgroundColor": "#FCFAF2",
+        "backgroundColor": "#0EA5C6",
+        "backgroundImage": "./assets/images/android-icon-background.png",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
@@ -31,11 +33,12 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#FFF8EE",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 160
+          "backgroundColor": "#FFF9F0",
+          "image": "./assets/branding/splash.png",
+          "imageWidth": 240
         }
-      ]
+      ],
+      "expo-sqlite"
     ],
     "experiments": {
       "typedRoutes": true,

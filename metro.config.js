@@ -1,4 +1,5 @@
-// Lets the app import .svg files as React components (react-native-svg-transformer).
+// Lets the app import .svg files as React components (react-native-svg-transformer),
+// and serves what expo-sqlite needs on web (its .wasm file and cross-origin isolation).
 const { getDefaultConfig } = require('expo/metro-config');
 
 const config = getDefaultConfig(__dirname);
@@ -9,8 +10,17 @@ config.transformer = {
 };
 config.resolver = {
   ...config.resolver,
-  assetExts: config.resolver.assetExts.filter((ext) => ext !== 'svg'),
+  assetExts: [...config.resolver.assetExts.filter((ext) => ext !== 'svg'), 'wasm'],
   sourceExts: [...config.resolver.sourceExts, 'svg'],
+};
+config.server = {
+  ...config.server,
+  enhanceMiddleware: (middleware) => (req, res, next) => {
+    // SharedArrayBuffer (used by expo-sqlite on web) requires a cross-origin isolated page.
+    res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    return middleware(req, res, next);
+  },
 };
 
 module.exports = config;

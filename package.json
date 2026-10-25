@@ -4,8 +4,10 @@
   "version": "0.1.0",
   "dependencies": {
     "@expo/ui": "~58.0.23",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "~58.0.19",
     "expo-constants": "~58.0.13",
+    "expo-crypto": "~58.0.7",
     "expo-device": "~58.0.5",
     "expo-font": "~58.0.10",
     "expo-glass-effect": "~58.0.5",
@@ -13,6 +15,7 @@
     "expo-linking": "~58.0.14",
     "expo-router": "~58.0.26",
     "expo-splash-screen": "~58.0.11",
+    "expo-sqlite": "~58.0.14",
     "expo-status-bar": "~58.0.4",
     "expo-symbols": "~58.0.4",
     "expo-system-ui": "~58.0.6",
@@ -57,6 +60,9 @@
   "description": "StudySpark AI - Learn Smarter. Remember Longer.",
   "jest": {
     "preset": "jest-expo",
+    "setupFiles": [
+      "<rootDir>/test/setup.js"
+    ],
     "moduleNameMapper": {
       "\\.svg$": "<rootDir>/test/svg-mock.js",
       "^@/assets/(.*)$": "<rootDir>/assets/$1"

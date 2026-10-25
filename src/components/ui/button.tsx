@@ -1,39 +1,69 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
-import { colors, MIN_TOUCH_TARGET, radii, shadows, spacing } from '@/theme';
+import { colors, MIN_TOUCH_TARGET, radii, shadows, spacing, type ColorName } from '@/theme';
 
 import { AppText } from './app-text';
+
+export type ButtonVariant = 'primary' | 'secondary' | 'dark' | 'ghost' | 'danger';
 
 export type ButtonProps = {
   label: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary';
+  variant?: ButtonVariant;
   icon?: ReactNode;
   disabled?: boolean;
+  loading?: boolean;
+  /** Smaller padding for toolbars and headers (still a 48pt touch target). */
+  compact?: boolean;
   accessibilityHint?: string;
+  testID?: string;
 };
 
-export function Button({ label, onPress, variant = 'primary', icon, disabled, accessibilityHint }: ButtonProps) {
-  const primary = variant === 'primary';
+const VARIANTS: Record<ButtonVariant, { bg: string; pressed: string; text: ColorName; border?: string }> = {
+  primary: { bg: colors.primary, pressed: colors.primaryPressed, text: 'textOnPrimary' },
+  secondary: { bg: colors.surface, pressed: colors.primarySoft, text: 'primaryText', border: colors.primary },
+  dark: { bg: colors.navy, pressed: colors.navyPressed, text: 'textInverse' },
+  ghost: { bg: 'transparent', pressed: colors.primarySoft, text: 'primaryText' },
+  danger: { bg: colors.danger, pressed: colors.dangerPressed, text: 'textInverse' },
+};
+
+export function Button({
+  label,
+  onPress,
+  variant = 'primary',
+  icon,
+  disabled,
+  loading,
+  compact,
+  accessibilityHint,
+  testID,
+}: ButtonProps) {
+  const v = VARIANTS[variant];
+  const inactive = disabled || loading;
   return (
     <Pressable
+      testID={testID}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled: !!disabled }}
-      disabled={disabled}
+      accessibilityState={{ disabled: !!inactive, busy: !!loading }}
+      disabled={inactive}
       onPress={onPress}
       style={({ pressed }) => [
         styles.base,
-        primary ? styles.primary : styles.secondary,
-        pressed && (primary ? styles.primaryPressed : styles.secondaryPressed),
-        disabled && styles.disabled,
+        compact && styles.compact,
+        { backgroundColor: pressed ? v.pressed : v.bg },
+        v.border ? { borderWidth: 2, borderColor: v.border } : null,
+        variant !== 'ghost' && variant !== 'secondary' ? shadows.card : null,
+        pressed && styles.pressed,
+        inactive && styles.inactive,
       ]}>
-      <AppText variant="label" color={primary ? 'textOnPrimary' : 'primary'}>
+      {loading ? <ActivityIndicator color={colors[v.text]} /> : null}
+      <AppText variant="label" color={v.text}>
         {label}
       </AppText>
-      {icon ? <View aria-hidden>{icon}</View> : null}
+      {icon && !loading ? <View aria-hidden>{icon}</View> : null}
     </Pressable>
   );
 }
@@ -48,9 +78,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing.sm,
   },
-  primary: { backgroundColor: colors.primary, ...shadows.card },
-  primaryPressed: { backgroundColor: colors.primaryPressed, transform: [{ scale: 0.98 }] },
-  secondary: { backgroundColor: colors.surface, borderWidth: 2, borderColor: colors.primary },
-  secondaryPressed: { backgroundColor: colors.primarySoft },
-  disabled: { opacity: 0.5 },
+  compact: { minHeight: MIN_TOUCH_TARGET, paddingHorizontal: spacing.lg },
+  pressed: { transform: [{ scale: 0.98 }] },
+  inactive: { opacity: 0.5 },
 });

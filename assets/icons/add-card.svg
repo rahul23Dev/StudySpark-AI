@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <!-- Add card: a study card with a plus badge. Original icon for StudySpark AI. -->
+  <rect x="2.5" y="5" width="14" height="14" rx="2.4" fill="#FFFFFF" stroke="#152238" stroke-width="1.5"/>
+  <path d="M5.5 9.5h8M5.5 12.5h5.5" stroke="#18B6A4" stroke-width="1.6" stroke-linecap="round"/>
+  <circle cx="17.5" cy="16.5" r="5" fill="#FF8066" stroke="#152238" stroke-width="1.5"/>
+  <path d="M17.5 14v5M15 16.5h5" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"/>
+</svg>

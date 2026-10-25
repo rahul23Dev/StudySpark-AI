@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- StudySpark AI logo: teal open book, coral sparkle, navy details. Editable source. -->
+  <path d="M18 58C34 52 48 55 60 62C72 55 86 52 102 58V100C86 95 72 98 60 105C48 98 34 95 18 100Z" fill="#152238"/>
+  <path d="M22 54C36 48 50 50 60 58V98C50 91 36 89 22 94Z" fill="#18B6A4"/>
+  <path d="M98 54C84 48 70 50 60 58V98C70 91 84 89 98 94Z" fill="#4FCDBE"/>
+  <g stroke="#FFF9F0" stroke-width="3" stroke-linecap="round" opacity="0.9">
+    <path d="M30 64c8-3 16-2 22 1"/>
+    <path d="M30 74c8-3 16-2 22 1"/>
+    <path d="M90 64c-8-3-16-2-22 1"/>
+    <path d="M90 74c-8-3-16-2-22 1"/>
+  </g>
+  <path d="M60 58V98" stroke="#152238" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M60 16Q62 32 77 34Q62 36 60 52Q58 36 43 34Q58 32 60 16Z" fill="#FF8066"/>
+  <path d="M85 17q1.5 6 7.5 7.5q-6 1.5-7.5 7.5q-1.5-6-7.5-7.5q6-1.5 7.5-7.5Z" fill="#FFB547"/>
+</svg>
