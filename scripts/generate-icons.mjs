@@ -120,3 +120,21 @@ for (const name of ['empty-decks', 'deck-success', 'flashcard-empty', 'quiz-comp
     `assets/illustrations/${name}.png`,
   );
 }
+
+// Phase 4 art: a generated image in design/generated/<name>.png wins over the SVG placeholder
+// (see docs/ASSET_PROMPTS.md). Either way the result is 640x480 with a transparent background.
+for (const name of ['ai-create', 'generation-loading', 'generation-error']) {
+  const generated = at(`design/generated/${name}.png`);
+  const hasGenerated = await readFile(generated).then(
+    () => true,
+    () => false,
+  );
+  const source = hasGenerated
+    ? sharp(generated)
+    : sharp(await readFile(at(`assets/illustrations/${name}.svg`)), { density: 144 });
+  await write(
+    source.resize(640, 480, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }),
+    `assets/illustrations/${name}.png`,
+  );
+  if (hasGenerated) console.log(`  (from design/generated/${name}.png)`);
+}

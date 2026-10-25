@@ -90,6 +90,14 @@ const DECK_ORDER: Record<DeckSort, string> = {
 
 const escapeLike = (term: string) => term.replace(/[\\%_]/g, (c) => `\\${c}`);
 
+/** Re-throws a ValidationError with its field names prefixed, e.g. "cards.2.front". */
+function prefixIssues(error: unknown, prefix: string): unknown {
+  if (!(error instanceof ValidationError)) return error;
+  return new ValidationError(
+    Object.fromEntries(Object.entries(error.issues).map(([field, message]) => [`${prefix}.${field}`, message])),
+  );
+}
+
 export type StudyRepository = ReturnType<typeof createStudyRepository>;
 
 export function createStudyRepository(connection: SqlDatabase, deps: RepositoryDeps) {
@@ -403,6 +411,60 @@ export function createStudyRepository(connection: SqlDatabase, deps: RepositoryD
 
     async getQuizQuestion(id: string): Promise<QuizQuestion | null> {
       return (await loadQuestions('id = ?', [id]))[0] ?? null;
+    },
+
+    /**
+     * Creates a deck together with its cards and quiz questions in one transaction.
+     * Everything is validated first; if any item is invalid, or a write fails, nothing
+     * is saved and existing decks are untouched. Used to save AI-generated content.
+     */
+    async createDeckWithContent(input: {
+      deck: DeckInput;
+      cards?: FlashcardInput[];
+      questions?: QuizQuestionInput[];
+    }): Promise<Deck> {
+      const deck = validateDeckInput(input.deck);
+      const cards = (input.cards ?? []).map((card, i) => {
+        try {
+          return validateFlashcardInput(card);
+        } catch (error) {
+          throw prefixIssues(error, `cards.${i}`);
+        }
+      });
+      const questions = (input.questions ?? []).map((q, i) => {
+        try {
+          return validateQuizQuestionInput(q);
+        } catch (error) {
+          throw prefixIssues(error, `questions.${i}`);
+        }
+      });
+      const id = deps.uuid();
+      const at = deps.now();
+      await db.withTransactionAsync(async () => {
+        const position = await nextPosition('decks');
+        await run(
+          `INSERT INTO decks (id, title, description, subject, source, position, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          [id, deck.title, deck.description, deck.subject, deck.source, position, at, at],
+        );
+        for (const [i, card] of cards.entries()) {
+          await run(
+            `INSERT INTO flashcards (id, deck_id, front, back, difficulty, position, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [deps.uuid(), id, card.front, card.back, card.difficulty, i, at, at],
+          );
+        }
+        for (const [i, q] of questions.entries()) {
+          const questionId = deps.uuid();
+          await run(
+            `INSERT INTO quiz_questions (id, deck_id, type, question, correct_answer_index, explanation, position, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [questionId, id, q.type, q.question, q.correctAnswerIndex, q.explanation, i, at, at],
+          );
+          await insertOptions(questionId, q.options);
+        }
+      });
+      return toDeck(await requireDeckRow(id));
     },
   };
 

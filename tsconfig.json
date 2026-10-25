@@ -12,6 +12,10 @@
       ]
     }
   },
+  "exclude": [
+    "node_modules",
+    "apps"
+  ],
   "include": [
     "**/*.ts",
     "**/*.tsx",

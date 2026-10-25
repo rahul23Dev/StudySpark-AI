@@ -1,5 +1,8 @@
 // Raster artwork used by the screens. See docs/ASSET_MANIFEST.md for sources and sizes.
+import aiCreate from '@/assets/illustrations/ai-create.png';
 import deckSuccess from '@/assets/illustrations/deck-success.png';
+import generationError from '@/assets/illustrations/generation-error.png';
+import generationLoading from '@/assets/illustrations/generation-loading.png';
 import emptyDecks from '@/assets/illustrations/empty-decks.png';
 import flashcardEmpty from '@/assets/illustrations/flashcard-empty.png';
 import onboarding from '@/assets/illustrations/onboarding.png';
@@ -19,6 +22,9 @@ export const artwork = {
   flashcardEmpty: { source: flashcardEmpty, aspectRatio: landscape },
   quizComplete: { source: quizComplete, aspectRatio: landscape },
   studyCelebration: { source: studyCelebration, aspectRatio: landscape },
+  aiCreate: { source: aiCreate, aspectRatio: landscape },
+  generationLoading: { source: generationLoading, aspectRatio: landscape },
+  generationError: { source: generationError, aspectRatio: landscape },
   flashcards: flashcardsTile,
   quizzes: quizzesTile,
   progress: progressTile,

@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { artwork } from '@/components/artwork';
-import { AddCardIcon } from '@/components/illustrations';
+import { AddCardIcon, AiSparkIcon } from '@/components/illustrations';
 import {
   AppText,
   Button,
@@ -36,6 +36,7 @@ export default function DecksScreen() {
   );
   const query = useFocusQuery(load);
   const newDeck = () => router.push('/deck/new');
+  const createWithAi = () => router.push('/ai/create');
 
   const header = (
     <PageHeader
@@ -69,7 +70,17 @@ export default function DecksScreen() {
             title="No decks yet"
             message="Create a deck, then add flashcards to start studying."
             illustration={<Image source={artwork.emptyDecks.source} style={styles.fill} contentFit="contain" />}
-            action={<Button label="Create your first deck" onPress={newDeck} />}
+            action={
+              <View style={styles.emptyActions}>
+                <Button label="Create your first deck" onPress={newDeck} />
+                <Button
+                  label="Create with AI"
+                  variant="secondary"
+                  icon={<AiSparkIcon width={20} height={20} />}
+                  onPress={createWithAi}
+                />
+              </View>
+            }
           />
         </Card>
       </ScreenContainer>
@@ -79,6 +90,15 @@ export default function DecksScreen() {
   return (
     <ScreenContainer>
       {header}
+      <Card onPress={createWithAi} accessibilityLabel="Create with AI. Turn a topic or your notes into a deck." style={styles.aiCard}>
+        <AiSparkIcon width={28} height={28} />
+        <View style={styles.flex}>
+          <AppText variant="label">Create with AI</AppText>
+          <AppText variant="caption" color="textMuted">
+            Turn a topic or your notes into flashcards or a quiz
+          </AppText>
+        </View>
+      </Card>
       <View style={styles.controls}>
         <Input
           label="Search decks"
@@ -122,5 +142,8 @@ const styles = StyleSheet.create({
   grow: { flexGrow: 1 },
   fill: { width: '100%', height: '100%' },
   controls: { gap: spacing.md },
+  emptyActions: { gap: spacing.md, alignSelf: 'stretch' },
+  aiCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  flex: { flex: 1 },
   list: { gap: spacing.md },
 });

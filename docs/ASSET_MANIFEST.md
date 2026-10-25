@@ -1,6 +1,6 @@
 # StudySpark AI – Asset Manifest
 
-**Image generation:** no image-generation tool was available while building Phases 1–3. The illustrations are used only for empty and result states; the flashcard player and quiz are built from native UI components. Raster art comes from images the project owner supplied (`design/`) or is rendered from original SVGs written for this project. Everything is regenerated with:
+**Image generation:** no image-generation tool was available while building Phases 1–4. For Phase 4 the owner offered to generate images with ChatGPT; ready-to-paste prompts are in `docs/ASSET_PROMPTS.md`. Save results to `design/generated/<name>.png`, and `npm run generate:icons` will use them in place of the SVG placeholders. The illustrations are used only for empty and result states; the flashcard player and quiz are built from native UI components. Raster art comes from images the project owner supplied (`design/`) or is rendered from original SVGs written for this project. Everything is regenerated with:
 
 ```bash
 npm run generate:icons
@@ -27,6 +27,10 @@ Brand palette: cream `#FFF9F0`, navy `#152238`, teal `#18B6A4`, coral `#FF8066`,
 | `assets/illustrations/flashcard-empty.png` | Deck screen "No cards yet" state and empty sessions: a blank floating card with a sparkle | 640×480, transparent | PNG | `flashcard-empty.svg` (original) |
 | `assets/illustrations/quiz-complete.png` | Quiz results (not perfect): a finished answer card with a star badge | 640×480, transparent | PNG | `quiz-complete.svg` (original) |
 | `assets/illustrations/study-celebration.png` | Perfect scores and flashcard results: a card with a check, confetti and sparkles | 640×480, transparent | PNG | `study-celebration.svg` (original) |
+| `assets/illustrations/ai-create.png` | Create with AI screen header: robot presenting a flashcard | 640×480, transparent | PNG | **Placeholder** from `ai-create.svg`; prompt in `docs/ASSET_PROMPTS.md` |
+| `assets/illustrations/generation-loading.png` | "Creating your flashcards…" state: floating books and a sparkle | 640×480, transparent | PNG | **Placeholder** from `generation-loading.svg`; prompt in `docs/ASSET_PROMPTS.md` |
+| `assets/illustrations/generation-error.png` | Generation failed: book character holding a retry symbol | 640×480, transparent | PNG | **Placeholder** from `generation-error.svg`; prompt in `docs/ASSET_PROMPTS.md` |
+| `assets/icons/ai-spark.svg` | "Create with AI" entry points, generate button and AI notice | 24×24 viewBox | SVG | Original |
 | `assets/icons/rotate-card.svg` | "Show answer" button and the Flashcards row in the Study panel | 24×24 viewBox | SVG | Original |
 | `assets/icons/quiz.svg` | "Add question" button and the Quiz row in the Study panel | 24×24 viewBox | SVG | Original |
 | `assets/icons/check-answer.svg` | "Check answer" button in the quiz | 24×24 viewBox | SVG | Original |

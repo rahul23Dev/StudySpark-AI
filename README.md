@@ -10,7 +10,7 @@ StudySpark AI is a mobile study companion built with React Native, Expo (SDK 58)
 | Phase 1 – foundation: tokens, shared components, tab navigation, onboarding, settings | Done |
 | Phase 2 – local database and deck/flashcard management | Done |
 | Phase 3 – flashcard player, quizzes, study sessions and results | Done |
-| AI features | Not started. There are no AI calls or backend yet |
+| Phase 4 – AI backend (`apps/api`) and "Create with AI" | Built and tested; **needs an Anthropic API key and your approval for paid usage**, see [docs/AI_BACKEND.md](docs/AI_BACKEND.md) |
 
 | Item | Value |
 | --- | --- |
@@ -47,7 +47,9 @@ StudySpark AI is a mobile study companion built with React Native, Expo (SDK 58)
 - **Home:** real deck and card counts.
 - **Progress:** sessions completed, day streak, and study minutes per day or week, all from completed sessions.
 
-Everything is stored **on the device**. Nothing is sent anywhere.
+- **Create with AI:** turn a topic or pasted notes into flashcards or a quiz. You review everything before saving it as a deck, and it's clearly marked as AI-generated. This needs the AI backend and a key: see [docs/AI_BACKEND.md](docs/AI_BACKEND.md).
+
+Everything is stored **on the device**. Only "Create with AI" sends anything off the device: your topic or notes go to the StudySpark server and its AI provider.
 
 ## Expo SDK version
 
@@ -87,10 +89,14 @@ npm start
 | `npm run check` | Type-check, lint and tests together |
 | `npm run generate:icons` | Rebuild app icon, Android icons, favicon, splash and illustration PNGs |
 | `npm run assets:reference` | Re-cut the Task 0 artwork from `design/reference.webp` |
+| `npm run api:install` / `api:dev` / `api:check` | Install, run (port 3001) or test the AI backend in `apps/api` |
+| `npm run check:all` | App checks plus API checks |
 
 ## Project structure
 
 ```
+apps/
+  api/             Next.js AI backend (own package.json; see docs/AI_BACKEND.md)
 assets/
   branding/        logo.svg (editable logo), splash.png
   icons/           app-icon.png, deck.svg, add-card.svg
@@ -124,7 +130,11 @@ See [docs/DATABASE.md](docs/DATABASE.md) for the schema, migrations and data rul
 
 ## Environment variables
 
-See `.env.example`. Anything prefixed `EXPO_PUBLIC_` is bundled into the app and visible to users, so **never put API keys or secrets there**. AI provider keys will live on a backend in a later phase. Real `.env` files are git-ignored.
+See `.env.example`. Anything prefixed `EXPO_PUBLIC_` is bundled into the app and visible to users, so **never put API keys or secrets there**.
+- **App (`.env.local` in the project root):** only `EXPO_PUBLIC_API_BASE_URL`, the address of the AI backend.
+- **AI provider key:** lives only in `apps/api/.env.local`. See [docs/AI_BACKEND.md](docs/AI_BACKEND.md).
+
+Real `.env` files are git-ignored.
 
 ## Design
 

@@ -58,6 +58,7 @@ export default function RootLayout() {
                 name="deck/[id]/question/[questionId]"
                 options={{ headerShown: true, title: 'Edit question' }}
               />
+              <Stack.Screen name="ai/create" options={{ headerShown: true, title: 'Create with AI', presentation: 'modal' }} />
               <Stack.Screen name="session/[id]/index" options={{ headerShown: true, title: 'Study' }} />
               <Stack.Screen
                 name="session/[id]/results"

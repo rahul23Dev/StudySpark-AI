@@ -5,6 +5,7 @@ const expoConfig = require('eslint-config-expo/flat');
 module.exports = defineConfig([
   expoConfig,
   {
-    ignores: ['dist/*', '.expo/*', 'node_modules/*'],
+    // apps/api is a separate Next.js project with its own tooling.
+    ignores: ['dist/*', '.expo/*', 'node_modules/*', 'apps/**'],
   },
 ]);

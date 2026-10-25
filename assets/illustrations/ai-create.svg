@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none">
+  <!-- AI create (placeholder until a generated image is supplied): friendly robot presenting a blank flashcard. Transparent background. -->
+  <ellipse cx="150" cy="218" rx="84" ry="8" fill="#152238" opacity="0.08"/>
+  <!-- books at feet -->
+  <rect x="72" y="196" width="62" height="14" rx="4" fill="#18B6A4"/>
+  <rect x="78" y="184" width="52" height="12" rx="4" fill="#FF8066"/>
+  <!-- body -->
+  <rect x="112" y="124" width="76" height="72" rx="24" fill="#FFFFFF" stroke="#152238" stroke-width="3"/>
+  <circle cx="150" cy="160" r="11" fill="#18B6A4"/>
+  <rect x="124" y="194" width="18" height="18" rx="6" fill="#4FCDBE" stroke="#152238" stroke-width="3"/>
+  <rect x="158" y="194" width="18" height="18" rx="6" fill="#4FCDBE" stroke="#152238" stroke-width="3"/>
+  <!-- head -->
+  <line x1="150" y1="44" x2="150" y2="58" stroke="#152238" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="150" cy="40" r="7" fill="#18B6A4" stroke="#152238" stroke-width="3"/>
+  <rect x="104" y="58" width="92" height="66" rx="28" fill="#FFFFFF" stroke="#152238" stroke-width="3"/>
+  <rect x="116" y="72" width="68" height="38" rx="18" fill="#152238"/>
+  <circle cx="136" cy="88" r="6" fill="#4FE3D2"/>
+  <circle cx="164" cy="88" r="6" fill="#4FE3D2"/>
+  <path d="M141 99q9 7 18 0" stroke="#4FE3D2" stroke-width="3" stroke-linecap="round"/>
+  <rect x="96" y="80" width="10" height="22" rx="5" fill="#18B6A4" stroke="#152238" stroke-width="2.5"/>
+  <rect x="194" y="80" width="10" height="22" rx="5" fill="#18B6A4" stroke="#152238" stroke-width="2.5"/>
+  <!-- arms holding the card -->
+  <path d="M184 140q22-4 30-22" stroke="#152238" stroke-width="10" stroke-linecap="round"/>
+  <path d="M184 140q22-4 30-22" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+  <path d="M116 142q-14 8-10 26" stroke="#152238" stroke-width="10" stroke-linecap="round"/>
+  <path d="M116 142q-14 8-10 26" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+  <!-- the flashcard -->
+  <g transform="rotate(8 248 96)">
+    <rect x="204" y="62" width="88" height="64" rx="10" fill="#18B6A4" stroke="#152238" stroke-width="3"/>
+    <rect x="216" y="78" width="46" height="7" rx="3.5" fill="#FFFFFF"/>
+    <rect x="216" y="92" width="32" height="7" rx="3.5" fill="#DDF5F1"/>
+  </g>
+  <!-- sparkles -->
+  <path d="M276 30q2 8 10 10q-8 2-10 10q-2-8-10-10q8-2 10-10Z" fill="#FF8066"/>
+  <path d="M232 36q1.4 5.6 7 7q-5.6 1.4-7 7q-1.4-5.6-7-7q5.6-1.4 7-7Z" fill="#FFB547"/>
+  <path d="M70 92q1.6 6.4 8 8q-6.4 1.6-8 8q-1.6-6.4-8-8q6.4-1.6 8-8Z" fill="#FF8066"/>
+</svg>

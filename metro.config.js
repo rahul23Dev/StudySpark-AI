@@ -12,6 +12,8 @@ config.resolver = {
   ...config.resolver,
   assetExts: [...config.resolver.assetExts.filter((ext) => ext !== 'svg'), 'wasm'],
   sourceExts: [...config.resolver.sourceExts, 'svg'],
+  // apps/api is the separate Next.js backend (its own node_modules and React); never bundle it.
+  blockList: [/[\\/]apps[\\/]api[\\/].*/],
 };
 config.server = {
   ...config.server,
