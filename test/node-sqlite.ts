@@ -10,8 +10,9 @@ import { createStudyRepository } from '@/data/repository';
 
 export type TestDatabase = SqlDatabase & { raw: DatabaseSync; close: () => void };
 
-export function openTestDatabase(): TestDatabase {
-  const raw = new DatabaseSync(':memory:');
+/** In-memory by default; pass a file path to test data surviving a close and reopen. */
+export function openTestDatabase(path = ':memory:'): TestDatabase {
+  const raw = new DatabaseSync(path);
   raw.exec('PRAGMA foreign_keys = ON');
   const plain = <T>(row: unknown) => (row ? ({ ...(row as object) } as T) : null);
   return {
@@ -44,8 +45,8 @@ export function openTestDatabase(): TestDatabase {
 }
 
 /** Migrated database + repository with a controllable clock. */
-export async function openTestRepository() {
-  const db = openTestDatabase();
+export async function openTestRepository(path?: string) {
+  const db = openTestDatabase(path);
   await migrateAsync(db);
   let tick = 0;
   const clock = { now: () => new Date(Date.UTC(2026, 0, 1, 0, 0, tick++)).toISOString() };

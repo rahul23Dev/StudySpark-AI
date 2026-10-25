@@ -11,14 +11,15 @@ export type QueryState<T> =
  * another screen) and whenever `load` changes. Keeps the previous data while
  * reloading so lists don't flash.
  */
-export function useFocusQuery<T>(load: () => Promise<T>): QueryState<T> & { reload: () => void } {
+export function useFocusQuery<T>(load: () => Promise<T>): QueryState<T> & { reload: () => Promise<void> } {
   const [state, setState] = useState<QueryState<T>>({ status: 'loading' });
   const latest = useRef(0);
 
+  /** Reloads; the returned promise settles once the new data (or error) is in state. */
   const reload = useCallback(() => {
     const request = ++latest.current;
     setState((s) => ({ status: 'loading', data: s.data }));
-    load().then(
+    return load().then(
       (data) => {
         if (request === latest.current) setState({ status: 'ready', data });
       },
@@ -28,7 +29,11 @@ export function useFocusQuery<T>(load: () => Promise<T>): QueryState<T> & { relo
     );
   }, [load]);
 
-  useFocusEffect(reload);
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+    }, [reload]),
+  );
 
   return { ...state, reload };
 }

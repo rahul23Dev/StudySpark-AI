@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none">
+  <!-- Study celebration: a floating flashcard with a teal check, confetti and sparkles. Transparent background. -->
+  <ellipse cx="160" cy="214" rx="80" ry="8" fill="#152238" opacity="0.07"/>
+  <g transform="rotate(8 166 126)">
+    <rect x="96" y="80" width="140" height="96" rx="16" fill="#FF8066"/>
+  </g>
+  <g transform="rotate(-5 156 116)">
+    <rect x="86" y="70" width="140" height="96" rx="16" fill="#FFFFFF" stroke="#152238" stroke-width="3"/>
+    <circle cx="156" cy="118" r="26" fill="#18B6A4"/>
+    <path d="M144 118.5l8 8 16-16.5" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <!-- confetti -->
+  <rect x="62" y="56" width="10" height="5" rx="2.5" fill="#FFB547" transform="rotate(-30 67 58)"/>
+  <rect x="246" y="62" width="10" height="5" rx="2.5" fill="#18B6A4" transform="rotate(25 251 64)"/>
+  <rect x="258" y="150" width="10" height="5" rx="2.5" fill="#FFB547" transform="rotate(-20 263 152)"/>
+  <rect x="54" y="150" width="10" height="5" rx="2.5" fill="#FF8066" transform="rotate(35 59 152)"/>
+  <circle cx="98" cy="40" r="4" fill="#FF8066"/>
+  <circle cx="226" cy="34" r="4" fill="#FFB547"/>
+  <circle cx="280" cy="104" r="3.5" fill="#FF8066"/>
+  <circle cx="40" cy="104" r="3.5" fill="#18B6A4"/>
+  <!-- sparkles -->
+  <path d="M160 14q2.4 9.6 12 12q-9.6 2.4-12 12q-2.4-9.6-12-12q9.6-2.4 12-12Z" fill="#FFB547"/>
+  <path d="M262 22q1.6 6.4 8 8q-6.4 1.6-8 8q-1.6-6.4-8-8q6.4-1.6 8-8Z" fill="#FF8066"/>
+  <path d="M50 22q1.6 6.4 8 8q-6.4 1.6-8 8q-1.6-6.4-8-8q6.4-1.6 8-8Z" fill="#18B6A4"/>
+</svg>

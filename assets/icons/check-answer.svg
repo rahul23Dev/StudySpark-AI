@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <!-- Check answer: a teal circle with a tick and a small sparkle. Original icon for StudySpark AI. -->
+  <circle cx="11" cy="13" r="8.5" fill="#18B6A4" stroke="#152238" stroke-width="1.5"/>
+  <path d="M7 13.2l2.8 2.8 5.4-5.6" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M19.5 1.5q.6 2.4 3 3q-2.4.6-3 3q-.6-2.4-3-3q2.4-.6 3-3Z" fill="#FF8066"/>
+</svg>

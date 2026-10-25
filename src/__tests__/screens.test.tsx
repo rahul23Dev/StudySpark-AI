@@ -10,7 +10,7 @@ import { SETTINGS_STORAGE_KEY } from '@/settings/settings-context';
 
 import { mockRouter, resetMockRouter } from '../../test/expo-router-mock';
 import { openTestRepository } from '../../test/node-sqlite';
-import { isSelected, renderScreen, renderWithSettings } from '../../test/render';
+import { isChecked, renderScreen, renderWithSettings } from '../../test/render';
 
 jest.mock('expo-router', () => jest.requireActual('../../test/expo-router-mock'));
 
@@ -50,14 +50,16 @@ describe('Home', () => {
 
 describe('Progress', () => {
   it('switches between weekly and monthly views', async () => {
-    await renderWithSettings(<ProgressScreen />, {});
-    expect(screen.getByText('0 minutes this week')).toBeTruthy();
+    const { repo } = await openTestRepository();
+    await renderScreen(<ProgressScreen />, repo);
+    expect(await screen.findByText('0 minutes this week')).toBeTruthy();
     expect(screen.getByText('Sun')).toBeTruthy();
 
-    await fireEvent.press(screen.getByRole('tab', { name: 'Monthly view' }));
-    expect(screen.getByText('0 minutes this month')).toBeTruthy();
-    expect(screen.getByText('Wk 4')).toBeTruthy();
-    expect(isSelected(screen.getByRole('tab', { name: 'Monthly view' }))).toBe(true);
+    await fireEvent.press(screen.getByRole('radio', { name: 'Monthly' }));
+    expect(screen.getByText('0 minutes in the last 4 weeks')).toBeTruthy();
+    expect(screen.getByText('This wk')).toBeTruthy();
+    expect(isChecked(screen.getByRole('radio', { name: 'Monthly' }))).toBe(true);
+    expect(isChecked(screen.getByRole('radio', { name: 'Weekly' }))).toBe(false);
   });
 });
 

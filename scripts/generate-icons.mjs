@@ -114,7 +114,7 @@ await write(
 
 // Illustrations.
 await write(sharp(at('design/robot-reading-source.png')), 'assets/illustrations/onboarding.png');
-for (const name of ['empty-decks', 'deck-success']) {
+for (const name of ['empty-decks', 'deck-success', 'flashcard-empty', 'quiz-complete', 'study-celebration']) {
   await write(
     sharp(await readFile(at(`assets/illustrations/${name}.svg`)), { density: 144 }).resize(640, 480),
     `assets/illustrations/${name}.png`,

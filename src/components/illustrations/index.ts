@@ -2,4 +2,7 @@
 // (see metro.config.js). The .svg files in assets/ are the editable source of truth.
 export { default as AddCardIcon } from '@/assets/icons/add-card.svg';
 export { default as Logo } from '@/assets/branding/logo.svg';
+export { default as CheckAnswerIcon } from '@/assets/icons/check-answer.svg';
 export { default as DeckFolderIcon } from '@/assets/icons/deck.svg';
+export { default as QuizIcon } from '@/assets/icons/quiz.svg';
+export { default as RotateCardIcon } from '@/assets/icons/rotate-card.svg';

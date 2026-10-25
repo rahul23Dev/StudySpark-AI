@@ -38,6 +38,12 @@ export async function renderScreen(ui: ReactElement, repository: StudyRepository
   );
 }
 
+/** Whether a rendered radio/checkbox is checked (aria-checked or accessibilityState). */
+export function isChecked(element: { props: Record<string, unknown> }): boolean | undefined {
+  const state = element.props.accessibilityState as { checked?: boolean } | undefined;
+  return (element.props['aria-checked'] as boolean | undefined) ?? state?.checked;
+}
+
 /** Whether a rendered host element is marked selected (aria-selected or accessibilityState). */
 export function isSelected(element: { props: Record<string, unknown> }): boolean | undefined {
   const state = element.props.accessibilityState as { selected?: boolean } | undefined;

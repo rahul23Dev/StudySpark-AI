@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none">
+  <!-- Quiz complete: a finished answer card with the right option ticked and a star badge. Transparent background. -->
+  <ellipse cx="160" cy="212" rx="90" ry="8" fill="#152238" opacity="0.07"/>
+  <rect x="82" y="40" width="156" height="152" rx="18" fill="#FFFFFF" stroke="#152238" stroke-width="3"/>
+  <rect x="102" y="60" width="86" height="9" rx="4.5" fill="#152238"/>
+  <rect x="100" y="84" width="120" height="24" rx="12" fill="#FFF1DF"/>
+  <rect x="100" y="116" width="120" height="24" rx="12" fill="#DDF5F1" stroke="#18B6A4" stroke-width="2.5"/>
+  <circle cx="113" cy="128" r="7" fill="#18B6A4"/>
+  <path d="M109.5 128l2.5 2.5 5-5" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="126" y="125" width="54" height="6" rx="3" fill="#18B6A4"/>
+  <rect x="100" y="148" width="120" height="24" rx="12" fill="#FFF1DF"/>
+  <circle cx="234" cy="50" r="26" fill="#FFB547" stroke="#152238" stroke-width="3"/>
+  <path d="M234 36L238.1 46.6L249.2 46.9L240.5 53.8L243.6 64.4L234 58.3L224.4 64.4L227.5 53.8L218.8 46.9L229.9 46.6Z" fill="#FFFFFF"/>
+  <path d="M60 74q2.4 9.6 12 12q-9.6 2.4-12 12q-2.4-9.6-12-12q9.6-2.4 12-12Z" fill="#FF8066"/>
+  <path d="M264 128q1.6 6.4 8 8q-6.4 1.6-8 8q-1.6-6.4-8-8q6.4-1.6 8-8Z" fill="#18B6A4"/>
+</svg>

@@ -1,6 +1,6 @@
 # StudySpark AI – Asset Manifest
 
-**Image generation:** no image-generation tool was available while building Phases 1–2. Raster art comes from images the project owner supplied (`design/`) or is rendered from original SVGs written for this project. Everything is regenerated with:
+**Image generation:** no image-generation tool was available while building Phases 1–3. The illustrations are used only for empty and result states; the flashcard player and quiz are built from native UI components. Raster art comes from images the project owner supplied (`design/`) or is rendered from original SVGs written for this project. Everything is regenerated with:
 
 ```bash
 npm run generate:icons
@@ -24,6 +24,12 @@ Brand palette: cream `#FFF9F0`, navy `#152238`, teal `#18B6A4`, coral `#FF8066`,
 | `assets/illustrations/onboarding.png` | Welcome screen: friendly robot reading a book | 450×450 | PNG (white background, shown on a white card) | Owner-supplied `design/robot-reading-source.png` |
 | `assets/illustrations/empty-decks.png` | My Decks empty state: books, an open folder, blank cards waiting to be organised | 640×480, transparent | PNG | `empty-decks.svg` (original) |
 | `assets/illustrations/deck-success.png` | "Deck created / Copy created" banner: neat stack of cards with a teal check | 640×480, transparent | PNG | `deck-success.svg` (original) |
+| `assets/illustrations/flashcard-empty.png` | Deck screen "No cards yet" state and empty sessions: a blank floating card with a sparkle | 640×480, transparent | PNG | `flashcard-empty.svg` (original) |
+| `assets/illustrations/quiz-complete.png` | Quiz results (not perfect): a finished answer card with a star badge | 640×480, transparent | PNG | `quiz-complete.svg` (original) |
+| `assets/illustrations/study-celebration.png` | Perfect scores and flashcard results: a card with a check, confetti and sparkles | 640×480, transparent | PNG | `study-celebration.svg` (original) |
+| `assets/icons/rotate-card.svg` | "Show answer" button and the Flashcards row in the Study panel | 24×24 viewBox | SVG | Original |
+| `assets/icons/quiz.svg` | "Add question" button and the Quiz row in the Study panel | 24×24 viewBox | SVG | Original |
+| `assets/icons/check-answer.svg` | "Check answer" button in the quiz | 24×24 viewBox | SVG | Original |
 | `assets/icons/deck.svg` | Deck icon (folder holding a card) in deck list rows | 24×24 viewBox | SVG | Original |
 | `assets/icons/add-card.svg` | "New deck" / "Add card" button icon (card with plus badge) | 24×24 viewBox | SVG | Original |
 | `assets/images/reference/tile-flashcards.png`, `tile-quizzes.png`, `tile-progress.png` | Home "Coming soon" feature tiles | ~100×104 | PNG | Cut from `design/reference.webp` in Task 0 |
@@ -34,7 +40,7 @@ The tab-bar and UI line icons (Home, Decks, Progress, Profile, settings, chevron
 
 | File | Purpose | Format |
 | --- | --- | --- |
-| `assets/illustrations/empty-decks.svg`, `deck-success.svg` | Sources for the PNGs above (320×240 viewBox) | SVG |
+| `assets/illustrations/empty-decks.svg`, `deck-success.svg`, `flashcard-empty.svg`, `quiz-complete.svg`, `study-celebration.svg` | Sources for the PNGs above (320×240 viewBox) | SVG |
 | `design/app-icon-source.png` | Owner-supplied app icon (512×512) | PNG |
 | `design/robot-reading-source.png` | Owner-supplied robot (450×450) | PNG |
 | `design/ui-inspiration.webp` | Owner-supplied UI inspiration (layout and tab-bar style only, no content copied) | WebP |

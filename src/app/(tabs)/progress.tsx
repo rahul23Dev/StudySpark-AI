@@ -1,61 +1,83 @@
-import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 
-import { AppText, Card, PageHeader, ScreenContainer, StatTile } from '@/components/ui';
-import { colors, MIN_TOUCH_TARGET, radii, spacing } from '@/theme';
+import {
+  AppText,
+  Card,
+  ErrorState,
+  LoadingState,
+  PageHeader,
+  ScreenContainer,
+  SegmentedControl,
+  StatTile,
+} from '@/components/ui';
+import { useRepository } from '@/data/database-context';
+import { useFocusQuery } from '@/data/use-query';
+import { computeStudyStats } from '@/study/stats';
+import { colors, radii, spacing } from '@/theme';
 
 type Period = 'week' | 'month';
 
-const PERIODS: { id: Period; label: string; buckets: string[] }[] = [
-  { id: 'week', label: 'Weekly', buckets: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] },
-  { id: 'month', label: 'Monthly', buckets: ['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4'] },
-];
+const PERIODS = [
+  { value: 'week', label: 'Weekly' },
+  { value: 'month', label: 'Monthly' },
+] as const;
 
 export default function ProgressScreen() {
+  const repo = useRepository();
   const [period, setPeriod] = useState<Period>('week');
-  const current = PERIODS.find((p) => p.id === period) ?? PERIODS[0];
-  // No study sessions are recorded yet, so every bucket is honestly zero.
-  const minutes = current.buckets.map(() => 0);
+  // Everything here comes from completed sessions saved on the device.
+  const load = useCallback(async () => {
+    const sessions = await repo.listCompletedSessions();
+    const times = sessions.flatMap((s) => (s.completedAt ? [{ startedAt: s.startedAt, completedAt: s.completedAt }] : []));
+    return computeStudyStats(times, new Date());
+  }, [repo]);
+  const stats = useFocusQuery(load);
+
+  if (!stats.data) {
+    return (
+      <ScreenContainer>
+        <PageHeader title="Progress" subtitle="See how your studying adds up." />
+        {stats.status === 'error' ? (
+          <ErrorState message="We couldn't load your progress." onRetry={stats.reload} />
+        ) : (
+          <LoadingState message="Adding up your study time…" />
+        )}
+      </ScreenContainer>
+    );
+  }
+
+  const data = stats.data;
+  const buckets = period === 'week' ? data.week : data.month;
+  const total = period === 'week' ? data.minutesThisWeek : data.minutesThisMonth;
+  const max = Math.max(1, ...buckets.map((b) => b.minutes));
+  const described = buckets.map((b) => `${b.label} ${b.minutes} minutes`).join(', ');
 
   return (
     <ScreenContainer>
       <PageHeader title="Progress" subtitle="See how your studying adds up." />
 
       <Card style={styles.chartCard}>
-        <View style={styles.segmented} accessibilityRole="tablist">
-          {PERIODS.map((p) => {
-            const selected = p.id === period;
-            return (
-              <Pressable
-                key={p.id}
-                accessibilityRole="tab"
-                aria-selected={selected}
-                accessibilityLabel={`${p.label} view`}
-                onPress={() => setPeriod(p.id)}
-                style={[styles.segment, selected && styles.segmentActive]}>
-                <AppText variant="caption" color={selected ? 'textInverse' : 'text'}>
-                  {p.label}
-                </AppText>
-              </Pressable>
-            );
-          })}
-        </View>
-
+        <SegmentedControl
+          accessibilityLabel="Time range"
+          options={PERIODS}
+          value={period}
+          onChange={setPeriod}
+        />
         <AppText variant="heading">
-          0 minutes this {period === 'week' ? 'week' : 'month'}
+          {total} {total === 1 ? 'minute' : 'minutes'} {period === 'week' ? 'this week' : 'in the last 4 weeks'}
         </AppText>
-
-        <View
-          style={styles.chart}
-          accessible
-          accessibilityLabel={`Study minutes per ${period === 'week' ? 'day' : 'week'}: no study time recorded yet.`}>
-          {current.buckets.map((bucket, i) => (
-            <View key={bucket} style={styles.barColumn}>
-              <View style={styles.barTrack}>
-                <View style={[styles.bar, { height: `${Math.max(minutes[i], 4)}%` }]} />
-              </View>
+        <View style={styles.chart} accessible accessibilityLabel={`Study minutes: ${described}`}>
+          {buckets.map((b) => (
+            <View key={b.label} style={styles.barColumn}>
               <AppText variant="caption" color="textMuted">
-                {bucket}
+                {b.minutes > 0 ? b.minutes : ''}
+              </AppText>
+              <View style={styles.barTrack}>
+                <View style={[styles.bar, { height: `${b.minutes > 0 ? Math.max((b.minutes / max) * 100, 6) : 0}%` }]} />
+              </View>
+              <AppText variant="caption" color="textMuted" numberOfLines={1}>
+                {b.label}
               </AppText>
             </View>
           ))}
@@ -63,12 +85,16 @@ export default function ProgressScreen() {
       </Card>
 
       <View style={styles.stats}>
-        <StatTile label="Lessons completed" value={0} tone="accent" />
-        <StatTile label="Day streak" value={0} tone="amber" />
+        <StatTile label="Sessions completed" value={data.sessionsCompleted} tone="accent" />
+        <StatTile label="Day streak" value={data.streakDays} tone="amber" />
       </View>
 
       <Card tone="primary">
-        <AppText variant="body">Your progress fills in automatically as you study your decks.</AppText>
+        <AppText variant="body">
+          {data.sessionsCompleted === 0
+            ? 'Finish a flashcard session or quiz and your progress will appear here.'
+            : 'Study time counts each completed session, up to an hour per session.'}
+        </AppText>
       </Card>
     </ScreenContainer>
   );
@@ -76,23 +102,7 @@ export default function ProgressScreen() {
 
 const styles = StyleSheet.create({
   chartCard: { gap: spacing.lg, backgroundColor: colors.accentSoft, borderColor: colors.accentSoft },
-  segmented: {
-    flexDirection: 'row',
-    alignSelf: 'flex-start',
-    backgroundColor: colors.surface,
-    borderRadius: radii.pill,
-    padding: spacing.xs,
-  },
-  segment: {
-    minHeight: MIN_TOUCH_TARGET - 8,
-    minWidth: 88,
-    paddingHorizontal: spacing.lg,
-    borderRadius: radii.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  segmentActive: { backgroundColor: colors.navy },
-  chart: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm, height: 160 },
+  chart: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.sm, height: 180 },
   barColumn: { flex: 1, alignItems: 'center', gap: spacing.xs, height: '100%' },
   barTrack: {
     flex: 1,

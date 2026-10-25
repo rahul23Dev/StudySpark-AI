@@ -9,6 +9,7 @@ StudySpark AI is a mobile study companion built with React Native, Expo (SDK 58)
 | Task 0 – project setup | Done |
 | Phase 1 – foundation: tokens, shared components, tab navigation, onboarding, settings | Done |
 | Phase 2 – local database and deck/flashcard management | Done |
+| Phase 3 – flashcard player, quizzes, study sessions and results | Done |
 | AI features | Not started. There are no AI calls or backend yet |
 
 | Item | Value |
@@ -28,9 +29,23 @@ StudySpark AI is a mobile study companion built with React Native, Expo (SDK 58)
   - Search by title, subject or description.
   - Sort by Recent, Newest, A–Z or My order.
 - **Flashcards:** add (including "save and add another"), edit, delete, reorder (move up/down), and set difficulty (easy/medium/hard).
+- **Quiz questions:** multiple choice (2–6 options) or true/false, with an optional explanation.
+- **Flashcard player:**
+  - Tap or press Space to reveal the answer, then choose "Know it" or "Review again".
+  - Previous/next navigation, and "Shuffle remaining".
+- **Quiz:** pick an answer, check it, and get instant feedback with the explanation.
+- **Sessions:** resume where you left off, "Save & exit", or end a session.
+  - Every answer is saved as you go.
+  - A failed save shows an error with "Try again".
+  - Double taps can't record two answers.
+- **Results:** your score, computed from the saved answers, with a review of everything you missed.
+- **Keyboard (web):**
+  - **Flashcards:** Space or Enter reveals, K means Know it, R means Review again.
+  - **Quiz:** keys 1–6 pick an option, Enter checks the answer or moves on.
+  - **Both:** the ← and → arrow keys go back and forward.
 - **Settings:** display name (saved on the device) and the light theme.
 - **Home:** real deck and card counts.
-- Progress shows honest zeros until study sessions exist.
+- **Progress:** sessions completed, day streak, and study minutes per day or week, all from completed sessions.
 
 Everything is stored **on the device**. Nothing is sent anywhere.
 
@@ -87,12 +102,14 @@ scripts/           Asset generation
 src/
   app/             Expo Router routes
     (tabs)/        index (Home), decks, progress, profile
-    deck/          new, [id]/index (detail), [id]/edit, [id]/card/new, [id]/card/[cardId]
+    deck/          new, [id]/index (detail), [id]/edit, [id]/card/…, [id]/question/…
+    session/       [id]/index (flashcard player or quiz), [id]/results
     onboarding.tsx, settings.tsx, _layout.tsx (providers + database gate)
   components/      Shared UI; ui/ holds the primitives (Button, Card, Input,
                    ScreenContainer, Loading/Empty/ErrorState, ConfirmDialog, …)
   data/            SQLite schema, migrations, validation, repository, providers
-  features/        Feature code (decks/: list item, forms, card row)
+  features/        Feature code (decks/: forms and rows; study/: players, study panel)
+  study/           Pure scoring, session state and progress statistics
   settings/        Display name + onboarding flag (AsyncStorage)
   theme/           Design tokens and the light theme
   __tests__/       Jest tests

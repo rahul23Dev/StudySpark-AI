@@ -8,6 +8,7 @@ export const mockRouter = {
   navigate: jest.fn(),
   replace: jest.fn(),
   back: jest.fn(),
+  dismissTo: jest.fn(),
   canGoBack: jest.fn(() => false),
 };
 
@@ -28,3 +29,10 @@ export function useFocusEffect(effect: () => void | (() => void)) {
   useEffect(effect, [effect]);
 }
 export const Stack = { Screen: () => null };
+/** Mirrors <Redirect>: replaces the current route once rendered. */
+export function Redirect({ href }: { href: string }) {
+  useEffect(() => {
+    mockRouter.replace(href);
+  }, [href]);
+  return null;
+}

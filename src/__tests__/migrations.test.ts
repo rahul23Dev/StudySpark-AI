@@ -15,7 +15,15 @@ describe('migrations', () => {
     expect(await getSchemaVersion(db)).toBe(0);
     expect(await migrateAsync(db)).toEqual({ from: 0, to: LATEST_SCHEMA_VERSION });
     expect(await getSchemaVersion(db)).toBe(LATEST_SCHEMA_VERSION);
-    expect(tables(db)).toEqual(['decks', 'flashcards', 'quiz_question_options', 'quiz_questions']);
+    expect(tables(db)).toEqual([
+      'decks',
+      'flashcards',
+      'quiz_question_options',
+      'quiz_questions',
+      'study_attempts',
+      'study_session_items',
+      'study_sessions',
+    ]);
   });
 
   it('is repeatable: running again changes nothing and keeps data', async () => {
@@ -40,6 +48,10 @@ describe('migrations', () => {
       'idx_decks_updated_at',
       'idx_flashcards_deck_position',
       'idx_quiz_questions_deck_position',
+      'idx_study_attempts_session',
+      'idx_study_sessions_completed_at',
+      'idx_study_sessions_deck',
+      'idx_study_sessions_one_active',
     ]);
   });
 
@@ -71,6 +83,32 @@ describe('migrations', () => {
     const db = openTestDatabase();
     db.raw.exec(`PRAGMA user_version = ${LATEST_SCHEMA_VERSION + 1}`);
     await expect(migrateAsync(db)).rejects.toThrow(/newer than this app/);
+  });
+
+  it('upgrades a version-1 database to the latest without losing decks', async () => {
+    const db = openTestDatabase();
+    await migrateAsync(db, MIGRATIONS.slice(0, 1));
+    db.raw
+      .prepare("INSERT INTO decks (id, title, position, created_at, updated_at) VALUES ('d1', 'Old deck', 0, 'x', 'x')")
+      .run();
+    expect(await migrateAsync(db)).toEqual({ from: 1, to: LATEST_SCHEMA_VERSION });
+    expect(tables(db)).toContain('study_sessions');
+    expect(db.raw.prepare('SELECT title FROM decks').all()).toEqual([expect.objectContaining({ title: 'Old deck' })]);
+  });
+
+  it('allows only one active session per deck and mode', async () => {
+    const db = openTestDatabase();
+    await migrateAsync(db);
+    db.raw.exec("INSERT INTO decks (id, title, position, created_at, updated_at) VALUES ('d', 'Deck', 0, 'x', 'x')");
+    const insert = (id: string, status = 'active') =>
+      db.raw
+        .prepare(
+          "INSERT INTO study_sessions (id, deck_id, mode, status, started_at, updated_at, abandoned_at) VALUES (?, 'd', 'quiz', ?, 'x', 'x', ?)",
+        )
+        .run(id, status, status === 'abandoned' ? 'x' : null);
+    insert('s1');
+    expect(() => insert('s2')).toThrow(/UNIQUE/);
+    insert('s3', 'abandoned');
   });
 
   it('rejects badly numbered migration lists', async () => {

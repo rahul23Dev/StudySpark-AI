@@ -53,6 +53,16 @@ export default function RootLayout() {
               <Stack.Screen name="deck/[id]/edit" options={{ headerShown: true, title: 'Edit deck', presentation: 'modal' }} />
               <Stack.Screen name="deck/[id]/card/new" options={{ headerShown: true, title: 'New card' }} />
               <Stack.Screen name="deck/[id]/card/[cardId]" options={{ headerShown: true, title: 'Edit card' }} />
+              <Stack.Screen name="deck/[id]/question/new" options={{ headerShown: true, title: 'New question' }} />
+              <Stack.Screen
+                name="deck/[id]/question/[questionId]"
+                options={{ headerShown: true, title: 'Edit question' }}
+              />
+              <Stack.Screen name="session/[id]/index" options={{ headerShown: true, title: 'Study' }} />
+              <Stack.Screen
+                name="session/[id]/results"
+                options={{ headerShown: true, title: 'Results', headerBackVisible: false, gestureEnabled: false }}
+              />
             </Stack>
           </DatabaseGate>
         </ThemeProvider>

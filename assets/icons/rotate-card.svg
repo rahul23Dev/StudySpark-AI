@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <!-- Rotate card: a card with a turning arrow (reveal / flip). Original icon for StudySpark AI. -->
+  <rect x="6" y="5" width="12" height="15" rx="2.2" fill="#FFFFFF" stroke="#152238" stroke-width="1.5"/>
+  <path d="M9 10h6M9 13h4" stroke="#18B6A4" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M3 9.5A9 9 0 0 1 14.5 2.6" stroke="#FF8066" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M12.6 1.3l2.3 1.4-1.4 2.3" stroke="#FF8066" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M21 14.5a9 9 0 0 1-11.5 6.9" stroke="#FF8066" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M11.4 22.7l-2.3-1.4 1.4-2.3" stroke="#FF8066" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

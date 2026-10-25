@@ -9,10 +9,16 @@ StudySpark AI stores decks, flashcards and quiz questions in an on-device SQLite
 | `src/data/database.ts` | `SqlDatabase`, the small interface the data layer needs; `expo-sqlite` satisfies it |
 | `src/data/migrations.ts` | Versioned schema migrations and `migrateAsync` |
 | `src/data/validation.ts` | Input validation and field limits |
-| `src/data/repository.ts` | Typed functions for decks, flashcards and quiz questions |
+| `src/data/repository.ts` | Typed functions for decks, flashcards and quiz questions; queues transactions so overlapping writes can't collide |
+| `src/data/sessions.ts` | Study sessions: start, resume, record attempts, shuffle, complete, abandon |
+| `src/study/scoring.ts` | Pure grading and scoring (`computeScore`), seeded shuffling |
+| `src/study/session-state.ts` | Pure player state (navigation, reveal, double-submit guard) |
+| `src/study/stats.ts` | Pure Progress statistics from completed sessions |
 | `src/data/open-database.ts` | Opens the database, enables foreign keys (and WAL on devices), migrates |
 | `src/data/database-context.tsx` | `DatabaseProvider` and `useRepository()`; the root layout shows loading and error/retry states |
 | `src/data/use-query.ts` | Loads data when a screen gains focus, keeping old data while it refreshes |
+
+On web the app also asks the browser to keep its storage (`navigator.storage.persist()`), so the database isn't evicted under storage pressure.
 
 ## Schema (version 1)
 
@@ -31,6 +37,32 @@ StudySpark AI stores decks, flashcards and quiz questions in an on-device SQLite
 - **quiz_question_options:**
   - `(question_id, position)` primary key, `question_id` → quiz_questions (cascade), `text` (1–300).
   - Options are **rows, not a JSON string**, so each one is typed and checked by the database.
+
+## Schema (version 2): study sessions
+
+- **study_sessions:**
+  - `id` UUID, `deck_id` → decks (cascade), `mode` (`flashcards` | `quiz`), `status` (`active` | `completed` | `abandoned`).
+  - `started_at`, `updated_at`, `completed_at`, `abandoned_at`, and `score_correct` / `score_total`, saved at completion.
+  - CHECKs tie the status to its timestamp, and require a completed session to have a score with correct ≤ total.
+  - A partial unique index allows **one active session per deck and mode**. Starting again abandons the old one.
+- **study_session_items:** the cards or questions in a session, in study order.
+  - `(session_id, position)` primary key, `UNIQUE (session_id, item_id)`.
+- **study_attempts:**
+  - `id` UUID, `session_id`, `item_id`, `submitted_answer` (`know` / `review` for flashcards, the option index for quizzes).
+  - `is_correct` (0/1) and `answered_at`.
+  - `UNIQUE (session_id, item_id)`: one answer per item per session.
+  - A composite foreign key to `study_session_items`, so an attempt can only be for an item in its session.
+
+### How sessions behave
+
+- **Grading:** `recordAttempt` grades the answer itself, from the stored card or question. The UI's opinion is never trusted.
+- **Retrying is safe:** answering an already-answered item returns the saved attempt with `duplicate: true` and changes nothing. A failed save can therefore be retried. A double tap, or two saves racing, store exactly one row: the second hits the unique constraint and returns the first.
+- **Scores:** always computed from the saved attempts: correct ÷ items in the session, with unanswered items counted as not correct. `completeSession` stores that score, and tests check that it matches a fresh computation. Completing twice is a no-op.
+- **Shuffling:** reorders only the unanswered items. Answered ones keep their place and their answers.
+- **Deletions:** a card deleted mid-session shows as "deleted" and can be skipped. Deleting a deck removes its sessions and attempts (cascade).
+- **Progress tab:**
+  - Built only from completed sessions: count, day streak, and minutes per day or week.
+  - Each session counts for at most 60 minutes, so a session left open overnight doesn't inflate the time.
 
 Every rule is enforced twice: once in TypeScript (`validation.ts`, which returns friendly per-field messages) and again as SQL `CHECK` / `NOT NULL` / foreign-key constraints. Bad data is rejected even if some future code skips validation. Quiz questions also need 2–6 distinct options (exactly 2 for true/false), and a correct-answer index inside the options.
 

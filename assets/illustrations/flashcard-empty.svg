@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none">
+  <!-- Flashcard empty: a blank floating card waiting for its first question, with a small sparkle. Transparent background. -->
+  <ellipse cx="160" cy="210" rx="78" ry="8" fill="#152238" opacity="0.07"/>
+  <g transform="rotate(-6 160 118)">
+    <rect x="86" y="62" width="148" height="104" rx="16" fill="#D7F2EE"/>
+  </g>
+  <rect x="84" y="56" width="152" height="108" rx="16" fill="#FFFFFF" stroke="#152238" stroke-width="3"/>
+  <rect x="98" y="70" width="124" height="80" rx="10" stroke="#4FCDBE" stroke-width="2.5" stroke-dasharray="8 7"/>
+  <circle cx="160" cy="110" r="17" fill="#FFE6DF"/>
+  <path d="M160 101v18M151 110h18" stroke="#FF8066" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M244 44q2.4 9.6 12 12q-9.6 2.4-12 12q-2.4-9.6-12-12q9.6-2.4 12-12Z" fill="#FFB547"/>
+  <path d="M70 70q1.6 6.4 8 8q-6.4 1.6-8 8q-1.6-6.4-8-8q6.4-1.6 8-8Z" fill="#18B6A4"/>
+  <path d="M256 150q1.2 4.8 6 6q-4.8 1.2-6 6q-1.2-4.8-6-6q4.8-1.2 6-6Z" fill="#FF8066"/>
+</svg>

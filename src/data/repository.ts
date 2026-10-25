@@ -1,4 +1,4 @@
-import type { SqlDatabase, SqlValue } from './database';
+import { withSerializedTransactions, type SqlDatabase, type SqlValue } from './database';
 import { NotFoundError, ValidationError } from './errors';
 import {
   DECK_SORTS,
@@ -11,6 +11,7 @@ import {
   type QuizQuestion,
   type QuizQuestionInput,
 } from './types';
+import { createSessionApi } from './sessions';
 import { LIMITS, validateDeckInput, validateFlashcardInput, validateQuizQuestionInput } from './validation';
 
 export type RepositoryDeps = {
@@ -91,7 +92,8 @@ const escapeLike = (term: string) => term.replace(/[\\%_]/g, (c) => `\\${c}`);
 
 export type StudyRepository = ReturnType<typeof createStudyRepository>;
 
-export function createStudyRepository(db: SqlDatabase, deps: RepositoryDeps) {
+export function createStudyRepository(connection: SqlDatabase, deps: RepositoryDeps) {
+  const db = withSerializedTransactions(connection);
   const run = (sql: string, params: SqlValue[] = []) => db.runAsync(sql, params);
   const first = <T>(sql: string, params: SqlValue[] = []) => db.getFirstAsync<T>(sql, params);
   const all = <T>(sql: string, params: SqlValue[] = []) => db.getAllAsync<T>(sql, params);
@@ -151,7 +153,7 @@ export function createStudyRepository(db: SqlDatabase, deps: RepositoryDeps) {
     }));
   }
 
-  return {
+  const content = {
     // ---------- Decks ----------
 
     async listDecks({ search = '', sort = 'updated' }: { search?: string; sort?: DeckSort } = {}): Promise<DeckSummary[]> {
@@ -398,5 +400,11 @@ export function createStudyRepository(db: SqlDatabase, deps: RepositoryDeps) {
         await touchDeck(existing.deck_id, deps.now());
       });
     },
+
+    async getQuizQuestion(id: string): Promise<QuizQuestion | null> {
+      return (await loadQuestions('id = ?', [id]))[0] ?? null;
+    },
   };
+
+  return { ...content, ...createSessionApi(db, deps, content) };
 }

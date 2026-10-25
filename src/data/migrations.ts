@@ -59,6 +59,53 @@ export const MIGRATIONS: readonly Migration[] = [
       );
     `,
   },
+  {
+    version: 2,
+    name: 'study sessions and attempts',
+    sql: `
+      CREATE TABLE study_sessions (
+        id TEXT PRIMARY KEY NOT NULL,
+        deck_id TEXT NOT NULL REFERENCES decks (id) ON DELETE CASCADE,
+        mode TEXT NOT NULL CHECK (mode IN ('flashcards', 'quiz')),
+        status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'completed', 'abandoned')),
+        started_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        completed_at TEXT,
+        abandoned_at TEXT,
+        score_correct INTEGER CHECK (score_correct >= 0),
+        score_total INTEGER CHECK (score_total >= 0),
+        CHECK ((status = 'completed') = (completed_at IS NOT NULL)),
+        CHECK ((status = 'abandoned') = (abandoned_at IS NOT NULL)),
+        CHECK (status <> 'completed' OR (score_total IS NOT NULL AND score_correct IS NOT NULL AND score_correct <= score_total))
+      );
+      CREATE INDEX idx_study_sessions_deck ON study_sessions (deck_id, mode, status);
+      CREATE INDEX idx_study_sessions_completed_at ON study_sessions (completed_at);
+      -- At most one session in progress per deck and mode.
+      CREATE UNIQUE INDEX idx_study_sessions_one_active ON study_sessions (deck_id, mode) WHERE status = 'active';
+
+      -- The cards or questions in a session, in the order they are studied.
+      CREATE TABLE study_session_items (
+        session_id TEXT NOT NULL REFERENCES study_sessions (id) ON DELETE CASCADE,
+        position INTEGER NOT NULL CHECK (position >= 0),
+        item_id TEXT NOT NULL,
+        PRIMARY KEY (session_id, position),
+        UNIQUE (session_id, item_id)
+      );
+
+      -- One answer per item per session: the UNIQUE constraint stops duplicate submissions.
+      CREATE TABLE study_attempts (
+        id TEXT PRIMARY KEY NOT NULL,
+        session_id TEXT NOT NULL,
+        item_id TEXT NOT NULL,
+        submitted_answer TEXT NOT NULL CHECK (length(submitted_answer) BETWEEN 1 AND 20),
+        is_correct INTEGER NOT NULL CHECK (is_correct IN (0, 1)),
+        answered_at TEXT NOT NULL,
+        UNIQUE (session_id, item_id),
+        FOREIGN KEY (session_id, item_id) REFERENCES study_session_items (session_id, item_id) ON DELETE CASCADE
+      );
+      CREATE INDEX idx_study_attempts_session ON study_attempts (session_id);
+    `,
+  },
 ];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { artwork } from '@/components/artwork';
-import { AddCardIcon } from '@/components/illustrations';
+import { AddCardIcon, QuizIcon } from '@/components/illustrations';
 import {
   AppText,
   Badge,
@@ -20,6 +20,8 @@ import {
 import { useRepository } from '@/data/database-context';
 import { useFocusQuery } from '@/data/use-query';
 import { FlashcardItem } from '@/features/decks/flashcard-item';
+import { QuestionItem } from '@/features/decks/question-item';
+import { StudyPanel } from '@/features/study/study-panel';
 import { cardCountLabel, shortDate } from '@/features/decks/format';
 import { spacing } from '@/theme';
 
@@ -32,8 +34,17 @@ export default function DeckDetailScreen() {
   const repo = useRepository();
 
   const load = useCallback(async () => {
-    const [deck, cards] = await Promise.all([repo.getDeck(id), repo.listFlashcards(id)]);
-    return deck ? { deck, cards } : null;
+    const [deck, cards, questions, flash, quiz] = await Promise.all([
+      repo.getDeck(id),
+      repo.listFlashcards(id),
+      repo.listQuizQuestions(id),
+      repo.getActiveSession(id, 'flashcards'),
+      repo.getActiveSession(id, 'quiz'),
+    ]);
+    if (!deck) return null;
+    const summary = async (s: typeof flash) =>
+      s ? { id: s.id, score: (await repo.getSessionDetail(s.id)).score } : null;
+    return { deck, cards, questions, activeFlashcards: await summary(flash), activeQuiz: await summary(quiz) };
   }, [repo, id]);
   const query = useFocusQuery(load);
 
@@ -41,10 +52,10 @@ export default function DeckDetailScreen() {
     params.created === '1' ? 'created' : params.duplicated === '1' ? 'duplicated' : null,
   );
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [busy, setBusy] = useState<'delete' | 'duplicate' | 'move' | null>(null);
+  const [busy, setBusy] = useState<'delete' | 'duplicate' | 'move' | 'study' | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
-  async function act(kind: 'delete' | 'duplicate' | 'move', task: () => Promise<void>, failure: string) {
+  async function act(kind: 'delete' | 'duplicate' | 'move' | 'study', task: () => Promise<void>, failure: string) {
     setBusy(kind);
     setActionError(null);
     try {
@@ -78,7 +89,7 @@ export default function DeckDetailScreen() {
     );
   }
 
-  const { deck, cards } = query.data;
+  const { deck, cards, questions, activeFlashcards, activeQuiz } = query.data;
 
   return container(
     <>
@@ -146,6 +157,26 @@ export default function DeckDetailScreen() {
         ) : null}
       </Card>
 
+      <SectionTitle>Study</SectionTitle>
+      <StudyPanel
+        cardCount={cards.length}
+        questionCount={questions.length}
+        activeFlashcards={activeFlashcards}
+        activeQuiz={activeQuiz}
+        busy={busy !== null}
+        onResume={(sessionId) => router.push(`/session/${sessionId}`)}
+        onStart={(mode) =>
+          act(
+            'study',
+            async () => {
+              const session = await repo.startSession(id, mode);
+              router.push(`/session/${session.id}`);
+            },
+            "Couldn't start the session. Please try again.",
+          )
+        }
+      />
+
       <View style={styles.cardsHeader}>
         <SectionTitle>{`Cards (${cards.length})`}</SectionTitle>
         <Button
@@ -157,7 +188,11 @@ export default function DeckDetailScreen() {
       </View>
 
       {cards.length === 0 ? (
-        <EmptyState title="No cards yet" message="Add a question on the front and the answer on the back." />
+        <EmptyState
+          title="No cards yet"
+          message="Add a question on the front and the answer on the back."
+          illustration={<Image source={artwork.flashcardEmpty.source} style={styles.fill} contentFit="contain" />}
+        />
       ) : (
         <View style={styles.list}>
           {cards.map((card, index) => (
@@ -178,6 +213,32 @@ export default function DeckDetailScreen() {
                   "Couldn't move the card. Please try again.",
                 )
               }
+            />
+          ))}
+        </View>
+      )}
+
+      <View style={styles.cardsHeader}>
+        <SectionTitle>{`Quiz questions (${questions.length})`}</SectionTitle>
+        <Button
+          label="Add question"
+          compact
+          icon={<QuizIcon width={20} height={20} />}
+          onPress={() => router.push(`/deck/${id}/question/new`)}
+        />
+      </View>
+      {questions.length === 0 ? (
+        <AppText variant="body" color="textMuted">
+          Add multiple-choice or true/false questions to quiz yourself on this deck.
+        </AppText>
+      ) : (
+        <View style={styles.list}>
+          {questions.map((question, index) => (
+            <QuestionItem
+              key={question.id}
+              question={question}
+              index={index}
+              onEdit={() => router.push(`/deck/${id}/question/${question.id}`)}
             />
           ))}
         </View>
