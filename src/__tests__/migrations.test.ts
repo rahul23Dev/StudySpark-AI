@@ -16,6 +16,7 @@ describe('migrations', () => {
     expect(await migrateAsync(db)).toEqual({ from: 0, to: LATEST_SCHEMA_VERSION });
     expect(await getSchemaVersion(db)).toBe(LATEST_SCHEMA_VERSION);
     expect(tables(db)).toEqual([
+      'card_reviews',
       'decks',
       'flashcards',
       'quiz_question_options',
@@ -44,10 +45,13 @@ describe('migrations', () => {
       .all()
       .map((r) => (r as { name: string }).name);
     expect(indexes).toEqual([
+      'idx_card_reviews_deck_due',
+      'idx_card_reviews_due',
       'idx_decks_position',
       'idx_decks_updated_at',
       'idx_flashcards_deck_position',
       'idx_quiz_questions_deck_position',
+      'idx_study_attempts_answered_at',
       'idx_study_attempts_session',
       'idx_study_sessions_completed_at',
       'idx_study_sessions_deck',

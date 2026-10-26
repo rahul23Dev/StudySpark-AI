@@ -2,21 +2,41 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { AppText, Button, ConfirmDialog, ErrorState, LoadingState, ScreenContainer } from '@/components/ui';
+import { AppText, Button, Card, ConfirmDialog, ErrorState, LoadingState, ScreenContainer } from '@/components/ui';
 import { useRepository } from '@/data/database-context';
 import { useFocusQuery } from '@/data/use-query';
 import { CardForm } from '@/features/decks/card-form';
+import { dueLabel } from '@/features/decks/format';
 import { spacing } from '@/theme';
 
 export default function EditCardScreen() {
   const { cardId } = useLocalSearchParams<{ id: string; cardId: string }>();
   const router = useRouter();
   const repo = useRepository();
-  const load = useCallback(() => repo.getFlashcard(cardId), [repo, cardId]);
+  const load = useCallback(async () => {
+    const card = await repo.getFlashcard(cardId);
+    return card ? { card, schedule: await repo.getCardSchedule(cardId) } : null;
+  }, [repo, cardId]);
   const query = useFocusQuery(load);
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteFailed, setDeleteFailed] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [resetStatus, setResetStatus] = useState<'done' | 'failed' | null>(null);
+
+  async function resetSchedule() {
+    setResetting(true);
+    setResetStatus(null);
+    try {
+      await repo.resetCardSchedule(cardId);
+      await query.reload();
+      setResetStatus('done');
+    } catch {
+      setResetStatus('failed');
+    } finally {
+      setResetting(false);
+    }
+  }
 
   async function deleteCard() {
     setDeleting(true);
@@ -50,7 +70,7 @@ export default function EditCardScreen() {
     );
   }
 
-  const card = query.data;
+  const { card, schedule } = query.data;
   return (
     <ScreenContainer edges={['left', 'right', 'bottom']}>
       <CardForm
@@ -60,6 +80,31 @@ export default function EditCardScreen() {
           router.back();
         }}
       />
+      <Card style={styles.schedule}>
+        <AppText variant="label">Review schedule</AppText>
+        <AppText variant="caption" color="textMuted">
+          {dueLabel(schedule?.dueAt ?? null)}
+          {schedule ? ` · ${schedule.repetitions} correct in a row · ${schedule.lapses} ${schedule.lapses === 1 ? 'lapse' : 'lapses'}` : ''}
+        </AppText>
+        {resetStatus ? (
+          <AppText
+            variant="caption"
+            color={resetStatus === 'done' ? 'success' : 'danger'}
+            accessibilityRole={resetStatus === 'failed' ? 'alert' : undefined}
+            accessibilityLiveRegion="polite">
+            {resetStatus === 'done' ? 'Schedule reset. This card is new again.' : "Couldn't reset the schedule. Please try again."}
+          </AppText>
+        ) : null}
+        <Button
+          label="Reset this card's schedule"
+          variant="secondary"
+          compact
+          loading={resetting}
+          disabled={!schedule || resetting}
+          accessibilityHint="Makes the card new and due now. Your answer history is kept."
+          onPress={resetSchedule}
+        />
+      </Card>
       <View style={styles.danger}>
         {deleteFailed ? (
           <AppText variant="caption" color="danger" accessibilityRole="alert">
@@ -83,5 +128,6 @@ export default function EditCardScreen() {
 }
 
 const styles = StyleSheet.create({
+  schedule: { gap: spacing.sm, alignItems: 'flex-start' },
   danger: { gap: spacing.sm, alignItems: 'center' },
 });

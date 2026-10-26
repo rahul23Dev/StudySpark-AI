@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none">
+  <!-- Progress growth (placeholder): a rising teal chart with a sprout and sparkle. Transparent background. -->
+  <ellipse cx="160" cy="206" rx="104" ry="8" fill="#152238" opacity="0.07"/>
+  <path d="M70 196h180" stroke="#E7DCCB" stroke-width="4" stroke-linecap="round"/>
+  <rect x="86" y="158" width="30" height="38" rx="8" fill="#B8E6E0" stroke="#152238" stroke-width="3"/>
+  <rect x="130" y="128" width="30" height="68" rx="8" fill="#4FCDBE" stroke="#152238" stroke-width="3"/>
+  <rect x="174" y="96" width="30" height="100" rx="8" fill="#18B6A4" stroke="#152238" stroke-width="3"/>
+  <path d="M232 196v-62" stroke="#152238" stroke-width="3" stroke-linecap="round"/>
+  <path d="M232 150c-18-2-26-16-24-30 16 0 26 12 24 30Z" fill="#4FCDBE" stroke="#152238" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M232 138c4-18 18-26 32-24 0 16-14 26-32 24Z" fill="#18B6A4" stroke="#152238" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M84 132l42-28 40 12 52-58" stroke="#FF8066" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M200 56h20v20" stroke="#FF8066" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M260 40q2.4 9.6 12 12q-9.6 2.4-12 12q-2.4-9.6-12-12q9.6-2.4 12-12Z" fill="#FFB547"/>
+  <path d="M70 70q1.6 6.4 8 8q-6.4 1.6-8 8q-1.6-6.4-8-8q6.4-1.6 8-8Z" fill="#18B6A4"/>
+</svg>

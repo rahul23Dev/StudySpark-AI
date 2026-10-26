@@ -3,14 +3,13 @@ import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 
 import HomeScreen from '@/app/(tabs)/index';
 import ProfileScreen from '@/app/(tabs)/profile';
-import ProgressScreen from '@/app/(tabs)/progress';
 import OnboardingScreen from '@/app/onboarding';
 import SettingsScreen from '@/app/settings';
 import { SETTINGS_STORAGE_KEY } from '@/settings/settings-context';
 
 import { mockRouter, resetMockRouter } from '../../test/expo-router-mock';
 import { openTestRepository } from '../../test/node-sqlite';
-import { isChecked, renderScreen, renderWithSettings } from '../../test/render';
+import { renderScreen, renderWithSettings } from '../../test/render';
 
 jest.mock('expo-router', () => jest.requireActual('../../test/expo-router-mock'));
 
@@ -40,26 +39,13 @@ describe('Home', () => {
     expect(screen.getByText('Keep your decks\ngrowing')).toBeTruthy();
   });
 
-  it('falls back to "Learner" and lists planned tools as coming soon', async () => {
+  it('falls back to "Learner" and links each study tool', async () => {
     const { repo } = await openTestRepository();
     await renderScreen(<HomeScreen />, repo);
     expect(await screen.findByText('Hello, Learner')).toBeTruthy();
-    expect(screen.getAllByText('Coming soon')).toHaveLength(3);
-  });
-});
-
-describe('Progress', () => {
-  it('switches between weekly and monthly views', async () => {
-    const { repo } = await openTestRepository();
-    await renderScreen(<ProgressScreen />, repo);
-    expect(await screen.findByText('0 minutes this week')).toBeTruthy();
-    expect(screen.getByText('Sun')).toBeTruthy();
-
-    await fireEvent.press(screen.getByRole('radio', { name: 'Monthly' }));
-    expect(screen.getByText('0 minutes in the last 4 weeks')).toBeTruthy();
-    expect(screen.getByText('This wk')).toBeTruthy();
-    expect(isChecked(screen.getByRole('radio', { name: 'Monthly' }))).toBe(true);
-    expect(isChecked(screen.getByRole('radio', { name: 'Weekly' }))).toBe(false);
+    expect(screen.queryByText('Coming soon')).toBeNull();
+    await fireEvent.press(screen.getByRole('button', { name: /^Study progress/ }));
+    expect(mockRouter.navigate).toHaveBeenCalledWith('/progress');
   });
 });
 

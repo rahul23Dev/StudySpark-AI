@@ -106,6 +106,28 @@ export const MIGRATIONS: readonly Migration[] = [
       CREATE INDEX idx_study_attempts_session ON study_attempts (session_id);
     `,
   },
+  {
+    version: 3,
+    name: 'spaced-repetition card schedule',
+    sql: `
+      -- One row per reviewed flashcard; a card without a row is new (due now).
+      -- Rows are derived from flashcard attempts (see src/study/scheduler.ts).
+      CREATE TABLE card_reviews (
+        card_id TEXT PRIMARY KEY NOT NULL REFERENCES flashcards (id) ON DELETE CASCADE,
+        deck_id TEXT NOT NULL REFERENCES decks (id) ON DELETE CASCADE,
+        repetitions INTEGER NOT NULL CHECK (repetitions >= 0),
+        lapses INTEGER NOT NULL CHECK (lapses >= 0),
+        interval_minutes INTEGER NOT NULL CHECK (interval_minutes >= 0),
+        due_at TEXT NOT NULL,
+        last_reviewed_at TEXT NOT NULL,
+        last_result TEXT NOT NULL CHECK (last_result IN ('know', 'review')),
+        updated_at TEXT NOT NULL
+      );
+      CREATE INDEX idx_card_reviews_deck_due ON card_reviews (deck_id, due_at);
+      CREATE INDEX idx_card_reviews_due ON card_reviews (due_at);
+      CREATE INDEX idx_study_attempts_answered_at ON study_attempts (answered_at);
+    `,
+  },
 ];
 
 export const LATEST_SCHEMA_VERSION = MIGRATIONS[MIGRATIONS.length - 1].version;

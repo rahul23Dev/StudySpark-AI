@@ -1,36 +1,34 @@
 // Builds every brand raster the app uses from the sources in design/ and the
 // editable SVGs in assets/. Run with: npm run generate:icons
 //
-// Sources
-//   design/app-icon-source.png      512x512 owner-supplied icon (rounded tile, white corners)
-//   design/robot-reading-source.png 450x450 owner-supplied onboarding robot
-//   assets/branding/logo.svg        editable vector logo
-//   assets/illustrations/empty-decks.svg
-import { readFile } from 'node:fs/promises';
+// Sources (first one found wins)
+//   App icon:  design/generated/app-icon-source.png  1024x1024 full-bleed, opaque (owner, via ChatGPT)
+//              design/app-icon-source.png            512x512 rounded tile with white corners (owner)
+//   Robot:     design/robot-reading-source.png       450x450 onboarding robot (owner)
+//   Illustrations: design/generated/<name>.png (owner, via ChatGPT) else assets/illustrations/<name>.svg
+//   Logo:      assets/branding/logo.svg              editable vector logo
+import { access, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const at = (p) => path.join(root, p);
+const exists = (p) => access(at(p)).then(() => true, () => false);
 
-const ICON_SOURCE = at('design/app-icon-source.png');
-const ICON_SOURCE_SIZE = 512;
-const ICON_CORNER_RADIUS = 112; // corner radius of the tile in the source, measured
-const ICON_TOP = '#0DC6C1'; // gradient colours sampled from the source edges
-const ICON_BOTTOM = '#0C7FCC';
 const CREAM = '#FFF9F0';
-
+const TRANSPARENT = { r: 0, g: 0, b: 0, alpha: 0 };
 const svg = (markup) => Buffer.from(markup);
-const gradientSquare = (size) =>
-  svg(`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
-    <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="${ICON_TOP}"/><stop offset="1" stop-color="${ICON_BOTTOM}"/>
-    </linearGradient></defs>
-    <rect width="${size}" height="${size}" fill="url(#g)"/></svg>`);
 const roundedMask = (size, inset, radius) =>
   svg(`<svg width="${size}" height="${size}"><rect x="${inset}" y="${inset}" width="${size - 2 * inset}"
     height="${size - 2 * inset}" rx="${radius - inset}" fill="#fff"/></svg>`);
+const gradientSquare = (size, top, bottom) =>
+  svg(`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
+    <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${bottom}"/>
+    </linearGradient></defs>
+    <rect width="${size}" height="${size}" fill="url(#g)"/></svg>`);
+const hex = ([r, g, b]) => `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
 
 async function write(image, out) {
   await image.png().toFile(at(out));
@@ -38,63 +36,91 @@ async function write(image, out) {
   console.log(`${out} (${width}x${height})`);
 }
 
-// The source tile with its white corners cut away (a little inset drops the anti-aliased fringe).
-const tile = await sharp(ICON_SOURCE)
-  .ensureAlpha()
-  .composite([{ input: roundedMask(ICON_SOURCE_SIZE, 3, ICON_CORNER_RADIUS), blend: 'dest-in' }])
-  .png()
-  .toBuffer();
+async function pixel(buffer, x, y) {
+  const { data, info } = await sharp(buffer).raw().toBuffer({ resolveWithObject: true });
+  const i = (y * info.width + x) * info.channels;
+  return [data[i], data[i + 1], data[i + 2]];
+}
 
-// White book-and-sparkle glyph only, as alpha: whiter pixels are more opaque.
-// Masked well inside the tile edge so the edge's light fringe isn't picked up.
-async function glyph() {
-  const inner = await sharp(ICON_SOURCE)
+// ---------- App icon source: a 1024x1024 full-bleed, opaque square ----------
+
+async function fullBleedIcon() {
+  if (await exists('design/generated/app-icon-source.png')) {
+    // The ChatGPT export has a lighter strip along its bottom ~30px (left over from its
+    // concept sheet). Crop a centred 990px square above it, then scale back to 1024.
+    const icon = await sharp(at('design/generated/app-icon-source.png'))
+      .extract({ left: 17, top: 0, width: 990, height: 990 })
+      .resize(1024, 1024, { kernel: 'lanczos3' })
+      .removeAlpha()
+      .png()
+      .toBuffer();
+    return { icon, origin: 'design/generated/app-icon-source.png' };
+  }
+  // Older source: a 512px rounded tile with white corners. Fill the corners with the
+  // tile's own gradient so the icon is full bleed.
+  const SIZE = 512;
+  const RADIUS = 112;
+  const tile = await sharp(at('design/app-icon-source.png'))
     .ensureAlpha()
-    .composite([{ input: roundedMask(ICON_SOURCE_SIZE, 30, ICON_CORNER_RADIUS), blend: 'dest-in' }])
+    .composite([{ input: roundedMask(SIZE, 3, RADIUS), blend: 'dest-in' }])
     .png()
     .toBuffer();
-  const { data, info } = await sharp(inner).raw().toBuffer({ resolveWithObject: true });
+  const icon = await sharp(gradientSquare(1024, '#0DC6C1', '#0C7FCC'))
+    .composite([{ input: await sharp(tile).resize(1024, 1024, { kernel: 'lanczos3' }).toBuffer() }])
+    .removeAlpha()
+    .png()
+    .toBuffer();
+  return { icon, origin: 'design/app-icon-source.png' };
+}
+
+/** The white book-and-sparkle glyph only, as alpha (whiter = more opaque), from inside the icon. */
+async function glyphFrom(icon) {
+  const masked = await sharp(icon)
+    .ensureAlpha()
+    .composite([{ input: roundedMask(1024, 70, 230), blend: 'dest-in' }])
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const { data, info } = masked;
   const out = Buffer.alloc(info.width * info.height * 4);
   for (let i = 0, o = 0; i < data.length; i += 4, o += 4) {
     const whiteness = Math.min(data[i], data[i + 1], data[i + 2]);
-    const alpha = data[i + 3] === 0 ? 0 : Math.max(0, Math.min(255, ((whiteness - 40) / 200) * 255));
     out[o] = out[o + 1] = out[o + 2] = 255;
-    out[o + 3] = alpha;
+    out[o + 3] = data[i + 3] === 0 ? 0 : Math.max(0, Math.min(255, ((whiteness - 60) / 180) * 255));
   }
   return sharp(out, { raw: { width: info.width, height: info.height, channels: 4 } }).png().toBuffer();
 }
-const glyphPng = await glyph();
 
-// App icon: full bleed (iOS and Android round the corners themselves), opaque.
-await write(
-  sharp(gradientSquare(1024)).composite([
-    { input: await sharp(tile).resize(1024, 1024, { kernel: 'lanczos3' }).toBuffer() },
-  ])
-    .flatten({ background: ICON_TOP })
-    .removeAlpha(), // App Store icons must not have an alpha channel
-  'assets/icons/app-icon.png',
-);
+const { icon, origin } = await fullBleedIcon();
+console.log(`app icon source: ${origin}`);
 
-// Android adaptive icon: gradient background layer + white glyph inside the 66% safe zone.
-await write(sharp(gradientSquare(1024)), 'assets/images/android-icon-background.png');
-const fgSize = 820;
-const transparent = { width: 1024, height: 1024, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } };
-const centred = async (input, size) => ({
-  input: await sharp(input).resize(size, size, { kernel: 'lanczos3' }).toBuffer(),
-  left: (1024 - size) / 2,
-  top: (1024 - size) / 2,
+// iOS/legacy icon: full bleed (the OS rounds corners), no alpha channel.
+await write(sharp(icon).removeAlpha(), 'assets/icons/app-icon.png');
+
+// Android adaptive icon: gradient sampled from the icon's own edges + white glyph in the safe zone.
+const top = hex(await pixel(icon, 60, 30));
+const bottom = hex(await pixel(icon, 60, 990));
+await write(sharp(gradientSquare(1024, top, bottom)), 'assets/images/android-icon-background.png');
+const glyph = await glyphFrom(icon);
+const fg = 780;
+const centred = async (input) => ({
+  input: await sharp(input).resize(fg, fg, { kernel: 'lanczos3' }).toBuffer(),
+  left: (1024 - fg) / 2,
+  top: (1024 - fg) / 2,
 });
-await write(sharp({ create: transparent }).composite([await centred(glyphPng, fgSize)]), 'assets/images/android-icon-foreground.png');
-// Android 13+ themed icon: same glyph, single colour (the OS tints it).
+const transparentSquare = { width: 1024, height: 1024, channels: 4, background: TRANSPARENT };
+await write(sharp({ create: transparentSquare }).composite([await centred(glyph)]), 'assets/images/android-icon-foreground.png');
+// Android 13+ themed icon: same glyph in a single colour (the OS tints it).
 await write(
-  sharp({ create: transparent }).composite([
-    await centred(await sharp(glyphPng).linear(0, 0).toBuffer(), fgSize),
-  ]),
+  sharp({ create: transparentSquare }).composite([await centred(await sharp(glyph).linear(0, 0).toBuffer())]),
   'assets/images/android-icon-monochrome.png',
 );
 
-// Favicon: the rounded tile.
-await write(sharp(tile).resize(48, 48, { kernel: 'lanczos3' }), 'assets/images/favicon.png');
+// Favicon: the icon with rounded corners.
+await write(
+  sharp(await sharp(icon).ensureAlpha().composite([{ input: roundedMask(1024, 0, 220), blend: 'dest-in' }]).png().toBuffer())
+    .resize(48, 48, { kernel: 'lanczos3' }),
+  'assets/images/favicon.png',
+);
 
 // Splash: vector logo on a soft cream-to-light-teal glow that fades into the cream splash background.
 const logo = await sharp(await readFile(at('assets/branding/logo.svg')), { density: (72 * 560) / 120 })
@@ -112,29 +138,56 @@ await write(
   'assets/branding/splash.png',
 );
 
-// Illustrations.
+// ---------- Illustrations ----------
+
 await write(sharp(at('design/robot-reading-source.png')), 'assets/illustrations/onboarding.png');
-for (const name of ['empty-decks', 'deck-success', 'flashcard-empty', 'quiz-complete', 'study-celebration']) {
-  await write(
-    sharp(await readFile(at(`assets/illustrations/${name}.svg`)), { density: 144 }).resize(640, 480),
-    `assets/illustrations/${name}.png`,
-  );
+
+/**
+ * Per-image clean-up for the ChatGPT exports, which were cut from one concept sheet:
+ * `cropTop` drops a strip of the neighbouring image along the top edge.
+ */
+const GENERATED_FIXES = { 'generation-error': { cropTop: 24 } };
+
+async function cleanGenerated(name) {
+  let image = sharp(at(`design/generated/${name}.png`)).ensureAlpha();
+  const fix = GENERATED_FIXES[name];
+  if (fix?.cropTop) {
+    const { width, height } = await image.metadata();
+    image = sharp(await image.extract({ left: 0, top: fix.cropTop, width, height: height - fix.cropTop }).png().toBuffer());
+  }
+  // Trim transparent margins, then add an even transparent margin so every illustration sits alike.
+  const trimmed = await image.trim({ background: TRANSPARENT, threshold: 10 }).png().toBuffer();
+  const { width, height } = await sharp(trimmed).metadata();
+  const pad = Math.round(Math.max(width, height) * 0.06);
+  // Materialise the padding: sharp would otherwise apply a later resize() before extend().
+  const padded = await sharp(trimmed)
+    .extend({ top: pad, bottom: pad, left: pad, right: pad, background: TRANSPARENT })
+    .png()
+    .toBuffer();
+  return sharp(padded);
 }
 
-// Phase 4 art: a generated image in design/generated/<name>.png wins over the SVG placeholder
-// (see docs/ASSET_PROMPTS.md). Either way the result is 640x480 with a transparent background.
-for (const name of ['ai-create', 'generation-loading', 'generation-error']) {
-  const generated = at(`design/generated/${name}.png`);
-  const hasGenerated = await readFile(generated).then(
-    () => true,
-    () => false,
-  );
-  const source = hasGenerated
-    ? sharp(generated)
+const ILLUSTRATIONS = [
+  'empty-decks',
+  'deck-success',
+  'flashcard-empty',
+  'quiz-complete',
+  'study-celebration',
+  'ai-create',
+  'generation-loading',
+  'generation-error',
+  'progress-growth',
+  'streak-celebration',
+  'revision-calendar',
+];
+for (const name of ILLUSTRATIONS) {
+  const generated = await exists(`design/generated/${name}.png`);
+  const source = generated
+    ? await cleanGenerated(name)
     : sharp(await readFile(at(`assets/illustrations/${name}.svg`)), { density: 144 });
   await write(
-    source.resize(640, 480, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }),
+    source.resize(640, 480, { fit: 'contain', background: TRANSPARENT, kernel: 'lanczos3' }),
     `assets/illustrations/${name}.png`,
   );
-  if (hasGenerated) console.log(`  (from design/generated/${name}.png)`);
+  if (generated) console.log(`  (from design/generated/${name}.png)`);
 }

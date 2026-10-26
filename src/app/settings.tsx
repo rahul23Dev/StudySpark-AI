@@ -2,17 +2,21 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { CheckIcon } from '@/components/icons';
-import { AppText, Button, Card, Input, ListRow, ScreenContainer, SectionTitle } from '@/components/ui';
+import { AppText, Button, Card, Input, ListRow, ScreenContainer, SectionTitle, SegmentedControl } from '@/components/ui';
 import { DEFAULT_DISPLAY_NAME } from '@/settings/display-name';
 import { MAX_DISPLAY_NAME_LENGTH, useSettings } from '@/settings/settings-context';
+import { DAILY_GOAL_OPTIONS } from '@/study/progress';
 import { colors, spacing } from '@/theme';
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'failed';
 
+const GOAL_OPTIONS = DAILY_GOAL_OPTIONS.map((n) => ({ value: String(n), label: `${n} cards` }));
+
 export default function SettingsScreen() {
-  const { settings, setDisplayName } = useSettings();
+  const { settings, setDisplayName, setDailyGoal } = useSettings();
   const [name, setName] = useState(settings.displayName);
   const [saveState, setSaveState] = useState<SaveState>('idle');
+  const [goalFailed, setGoalFailed] = useState(false);
   const changed = name.trim() !== settings.displayName;
 
   async function save() {
@@ -55,6 +59,27 @@ export default function SettingsScreen() {
             </AppText>
           ) : null}
         </View>
+      </Card>
+
+      <SectionTitle>Daily goal</SectionTitle>
+      <Card style={styles.form}>
+        <AppText variant="body" color="textMuted">
+          How many flashcards to review each day. Saved straight away.
+        </AppText>
+        <SegmentedControl
+          accessibilityLabel="Daily goal, cards per day"
+          options={GOAL_OPTIONS}
+          value={String(settings.dailyGoal)}
+          onChange={(value) => {
+            setGoalFailed(false);
+            setDailyGoal(Number(value)).catch(() => setGoalFailed(true));
+          }}
+        />
+        {goalFailed ? (
+          <AppText variant="caption" color="danger" accessibilityRole="alert">
+            {"Couldn't save your goal. Please try again."}
+          </AppText>
+        ) : null}
       </Card>
 
       <SectionTitle>Appearance</SectionTitle>

@@ -9,14 +9,17 @@ import { AppText, Badge, Card } from './ui';
 export type FeatureCardProps = {
   feature: StudyFeature;
   illustration: ReactNode;
+  /** Opens the tool (available tools only). */
+  onPress?: () => void;
 };
 
-export function FeatureCard({ feature, illustration }: FeatureCardProps) {
+export function FeatureCard({ feature, illustration, onPress }: FeatureCardProps) {
   const planned = feature.status === 'planned';
   return (
     <Card
       style={styles.card}
       accessible
+      onPress={planned ? undefined : onPress}
       accessibilityLabel={`${feature.title}. ${feature.description}${planned ? ' Coming soon.' : ''}`}>
       <View style={styles.art}>{illustration}</View>
       <View style={styles.body}>

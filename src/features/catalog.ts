@@ -1,6 +1,6 @@
 /**
- * The study tools StudySpark AI will offer. Everything is "planned" until it is
- * actually built — the UI must never present an unbuilt feature as working.
+ * The study tools StudySpark AI offers. A tool stays "planned" until it is actually
+ * built — the UI must never present an unbuilt feature as working.
  */
 export type FeatureStatus = 'planned' | 'available';
 
@@ -18,18 +18,18 @@ export const STUDY_FEATURES: readonly StudyFeature[] = [
     id: 'flashcards',
     title: 'Flashcards',
     description: 'Turn your notes into cards and review them at the right moment.',
-    status: 'planned',
+    status: 'available',
   },
   {
     id: 'quizzes',
     title: 'Quizzes',
     description: 'Check what you know with short practice quizzes.',
-    status: 'planned',
+    status: 'available',
   },
   {
     id: 'progress',
     title: 'Study progress',
-    description: 'See your streaks and how much you have mastered.',
-    status: 'planned',
+    description: 'See your daily goal, streak and the cards due for review.',
+    status: 'available',
   },
 ];

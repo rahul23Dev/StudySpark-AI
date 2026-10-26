@@ -1,15 +1,22 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { DAILY_GOAL_OPTIONS, DEFAULT_DAILY_GOAL } from '@/study/progress';
+
+const isDailyGoal = (value: unknown): value is number =>
+  typeof value === 'number' && (DAILY_GOAL_OPTIONS as readonly number[]).includes(value);
+
 export const SETTINGS_STORAGE_KEY = 'studyspark.settings.v1';
 export const MAX_DISPLAY_NAME_LENGTH = 40;
 
 export type Settings = {
   displayName: string;
   hasSeenOnboarding: boolean;
+  /** Cards to review per day; one of DAILY_GOAL_OPTIONS. */
+  dailyGoal: number;
 };
 
-export const DEFAULT_SETTINGS: Settings = { displayName: '', hasSeenOnboarding: false };
+export const DEFAULT_SETTINGS: Settings = { displayName: '', hasSeenOnboarding: false, dailyGoal: DEFAULT_DAILY_GOAL };
 
 export type SettingsStatus = 'loading' | 'ready' | 'error';
 
@@ -20,6 +27,7 @@ type SettingsContextValue = {
   reload: () => void;
   setDisplayName: (name: string) => Promise<void>;
   completeOnboarding: () => Promise<void>;
+  setDailyGoal: (goal: number) => Promise<void>;
 };
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
@@ -30,10 +38,11 @@ export function parseSettings(raw: string | null): Settings {
   try {
     const value: unknown = JSON.parse(raw);
     if (typeof value !== 'object' || value === null) return DEFAULT_SETTINGS;
-    const { displayName, hasSeenOnboarding } = value as Partial<Record<keyof Settings, unknown>>;
+    const { displayName, hasSeenOnboarding, dailyGoal } = value as Partial<Record<keyof Settings, unknown>>;
     return {
       displayName: typeof displayName === 'string' ? displayName.slice(0, MAX_DISPLAY_NAME_LENGTH) : '',
       hasSeenOnboarding: hasSeenOnboarding === true,
+      dailyGoal: isDailyGoal(dailyGoal) ? dailyGoal : DEFAULT_DAILY_GOAL,
     };
   } catch {
     return DEFAULT_SETTINGS;
@@ -81,6 +90,10 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       setDisplayName: (name) =>
         save({ ...settings, displayName: name.trim().slice(0, MAX_DISPLAY_NAME_LENGTH) }),
       completeOnboarding: () => save({ ...settings, hasSeenOnboarding: true }),
+      setDailyGoal: (goal) => {
+        if (!isDailyGoal(goal)) return Promise.reject(new RangeError(`Unsupported daily goal: ${goal}`));
+        return save({ ...settings, dailyGoal: goal });
+      },
     }),
     [status, settings, save],
   );

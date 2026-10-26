@@ -11,8 +11,13 @@ import { AppText, Button, Card, ScreenContainer, SectionTitle, StatTile } from '
 import { useRepository } from '@/data/database-context';
 import { useFocusQuery } from '@/data/use-query';
 import { STUDY_FEATURES, type StudyFeatureId } from '@/features/catalog';
+import { GoalMeter } from '@/features/progress/goal-meter';
 import { initialsOf, useDisplayName } from '@/settings/display-name';
+import { useSettings } from '@/settings/settings-context';
+import { computeProgress } from '@/study/progress';
 import { colors, MIN_TOUCH_TARGET, radii, spacing } from '@/theme';
+
+const FEATURE_ROUTE = { flashcards: '/decks', quizzes: '/decks', progress: '/progress' } as const;
 
 const FEATURE_ART: Record<StudyFeatureId, number> = {
   flashcards: artwork.flashcards,
@@ -24,8 +29,17 @@ export default function HomeScreen() {
   const router = useRouter();
   const name = useDisplayName();
   const repo = useRepository();
+  const { settings } = useSettings();
+  const dailyGoal = settings.dailyGoal;
   const load = useCallback(() => repo.getStats(), [repo]);
   const stats = useFocusQuery(load);
+  const loadToday = useCallback(async () => {
+    const now = new Date();
+    const [attempts, due] = await Promise.all([repo.listActivity(), repo.listDueByDeck(now)]);
+    const { goal } = computeProgress({ attempts, sessionsCompleted: 0, dailyGoal, now });
+    return { goal, dueCards: due.reduce((n, d) => n + d.due + d.newCards, 0) };
+  }, [repo, dailyGoal]);
+  const today = useFocusQuery(loadToday);
   const hasDecks = (stats.data?.deckCount ?? 0) > 0;
   const statValue = (n: number | undefined) => (n === undefined ? '–' : n);
 
@@ -84,12 +98,26 @@ export default function HomeScreen() {
         <StatTile label="Flashcards" value={statValue(stats.data?.cardCount)} tone="primary" />
       </View>
 
+      {today.data && hasDecks ? (
+        <Card style={styles.today}>
+          <SectionTitle>Today</SectionTitle>
+          <GoalMeter goal={today.data.goal} />
+          <AppText variant="caption" color="textMuted">
+            {today.data.dueCards === 0
+              ? 'No cards are due for review.'
+              : `${today.data.dueCards} ${today.data.dueCards === 1 ? 'card is' : 'cards are'} ready to review.`}
+          </AppText>
+          <Button label="See progress" variant="secondary" compact onPress={() => router.navigate('/progress')} />
+        </Card>
+      ) : null}
+
       <View style={styles.section}>
-        <SectionTitle>Coming soon</SectionTitle>
+        <SectionTitle>{STUDY_FEATURES.some((f) => f.status === 'planned') ? 'Coming soon' : 'Study tools'}</SectionTitle>
         {STUDY_FEATURES.map((feature) => (
           <FeatureCard
             key={feature.id}
             feature={feature}
+            onPress={() => router.navigate(FEATURE_ROUTE[feature.id])}
             illustration={<Image source={FEATURE_ART[feature.id]} style={styles.fill} contentFit="cover" />}
           />
         ))}
@@ -114,6 +142,7 @@ const styles = StyleSheet.create({
   heroSparkles: { position: 'absolute', top: spacing.lg, right: spacing.lg, alignItems: 'flex-end', gap: spacing.xs },
   heroAction: { alignSelf: 'flex-start', marginTop: spacing.sm },
   stats: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
+  today: { gap: spacing.md, alignItems: 'stretch' },
   section: { gap: spacing.md },
   fill: { width: '100%', height: '100%' },
 });

@@ -7,7 +7,7 @@ describe('study feature catalog', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('does not claim any feature is available before it is built', () => {
-    expect(STUDY_FEATURES.every((f) => f.status === 'planned')).toBe(true);
+  it('marks flashcards, quizzes and progress available now they are built', () => {
+    expect(STUDY_FEATURES.every((f) => f.status === 'available')).toBe(true);
   });
 });

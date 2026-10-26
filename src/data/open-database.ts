@@ -18,6 +18,9 @@ export async function openStudyRepository(): Promise<StudyRepository> {
   // Foreign keys are off by default in SQLite and are set per connection.
   await db.execAsync('PRAGMA foreign_keys = ON;');
   if (Platform.OS !== 'web') await db.execAsync('PRAGMA journal_mode = WAL;');
-  await migrateAsync(db);
-  return createStudyRepository(db, { uuid: randomUUID, now: () => new Date().toISOString() });
+  const { from } = await migrateAsync(db);
+  const repository = createStudyRepository(db, { uuid: randomUUID, now: () => new Date().toISOString() });
+  // Schedules arrived in schema v3: build them once from answers saved before that.
+  if (from > 0 && from < 3) await repository.rebuildSchedules();
+  return repository;
 }

@@ -60,9 +60,18 @@ On web the app also asks the browser to keep its storage (`navigator.storage.per
 - **Scores:** always computed from the saved attempts: correct ÷ items in the session, with unanswered items counted as not correct. `completeSession` stores that score, and tests check that it matches a fresh computation. Completing twice is a no-op.
 - **Shuffling:** reorders only the unanswered items. Answered ones keep their place and their answers.
 - **Deletions:** a card deleted mid-session shows as "deleted" and can be skipped. Deleting a deck removes its sessions and attempts (cascade).
-- **Progress tab:**
-  - Built only from completed sessions: count, day streak, and minutes per day or week.
-  - Each session counts for at most 60 minutes, so a session left open overnight doesn't inflate the time.
+- **Progress tab:** built from the saved answers and completed sessions. See [PROGRESS.md](PROGRESS.md) for every definition.
+
+## Schema (version 3): spaced-repetition schedule
+
+- **card_reviews:** one row per flashcard that has been reviewed. A card without a row is new and due now.
+  - `card_id` primary key → flashcards (cascade), `deck_id` → decks (cascade).
+  - `repetitions` (correct answers in a row), `lapses`, `interval_minutes`.
+  - `due_at`, `last_reviewed_at` (UTC ISO instants), `last_result` (`know` | `review`), `updated_at`.
+- **Indexes:** `card_reviews (deck_id, due_at)` and `(due_at)` for the due lists; `study_attempts (answered_at)` for the dashboard.
+- **Written only by `recordAttempt`,** inside the transaction that saves the flashcard answer. If the answer isn't saved, the schedule doesn't change, and a duplicate (retried) answer doesn't move it again.
+- **Resets** delete rows. Answers in `study_attempts` are never touched, so history and statistics survive a reset.
+- **Upgrading from version 1 or 2:** after migrating, the app rebuilds every schedule once from the saved flashcard answers (`rebuildSchedules`), so existing study history isn't lost.
 
 Every rule is enforced twice: once in TypeScript (`validation.ts`, which returns friendly per-field messages) and again as SQL `CHECK` / `NOT NULL` / foreign-key constraints. Bad data is rejected even if some future code skips validation. Quiz questions also need 2–6 distinct options (exactly 2 for true/false), and a correct-answer index inside the options.
 

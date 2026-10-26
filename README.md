@@ -43,9 +43,13 @@ StudySpark AI is a mobile study companion built with React Native, Expo (SDK 58)
   - **Flashcards:** Space or Enter reveals, K means Know it, R means Review again.
   - **Quiz:** keys 1–6 pick an option, Enter checks the answer or moves on.
   - **Both:** the ← and → arrow keys go back and forward.
-- **Settings:** display name (saved on the device) and the light theme.
-- **Home:** real deck and card counts.
-- **Progress:** sessions completed, day streak, and study minutes per day or week, all from completed sessions.
+- **Settings:** display name, daily goal (10, 20, 30 or 50 cards), and the light theme. All saved on the device.
+- **Home:** real deck and card counts, and today's goal with the number of cards ready to review.
+- **Spaced repetition:**
+  - Every flashcard answer schedules the card's next review: "Review again" brings it back in 10 minutes, and correct answers space it out (1, 3, 7, 16, 35 days, then doubling up to 180).
+  - "Review due cards" studies only what's due.
+  - Schedules can be reset per card or per deck; your answer history is kept.
+- **Progress:** daily goal, streak, cards reviewed, sessions completed, quiz accuracy, this week's activity chart, cards due per deck and topics to revisit. All of it comes from your saved answers; see [docs/PROGRESS.md](docs/PROGRESS.md) for the definitions.
 
 - **Create with AI:** turn a topic or pasted notes into flashcards or a quiz. You review everything before saving it as a deck, and it's clearly marked as AI-generated. This needs the AI backend and a key: see [docs/AI_BACKEND.md](docs/AI_BACKEND.md).
 
@@ -103,7 +107,7 @@ assets/
   illustrations/   onboarding, empty-decks and deck-success art (PNG + SVG sources)
   images/          Android adaptive icon layers, favicon, Task 0 reference crops
 design/            Source images supplied by the project owner
-docs/              ASSET_MANIFEST.md, DATABASE.md
+docs/              ASSET_MANIFEST.md, ASSET_PROMPTS.md, AI_BACKEND.md, DATABASE.md, PROGRESS.md
 scripts/           Asset generation
 src/
   app/             Expo Router routes
@@ -114,9 +118,10 @@ src/
   components/      Shared UI; ui/ holds the primitives (Button, Card, Input,
                    ScreenContainer, Loading/Empty/ErrorState, ConfirmDialog, …)
   data/            SQLite schema, migrations, validation, repository, providers
-  features/        Feature code (decks/: forms and rows; study/: players, study panel)
-  study/           Pure scoring, session state and progress statistics
-  settings/        Display name + onboarding flag (AsyncStorage)
+  features/        Feature code (decks/: forms and rows; study/: players, study and review panels;
+                   progress/: goal meter, weekly chart)
+  study/           Pure scoring, session state, scheduler and progress statistics
+  settings/        Display name, onboarding flag and daily goal (AsyncStorage)
   theme/           Design tokens and the light theme
   __tests__/       Jest tests
 test/              Test helpers (in-memory SQLite, router mock, render helpers)

@@ -4,12 +4,14 @@ import {
   gradeQuizAnswer,
   shuffled,
   STUDY_MODES,
+  type FlashcardAnswer,
   type Score,
   type StudyMode,
 } from '@/study/scoring';
 
 import type { SqlDatabase, SqlValue } from './database';
 import { NotFoundError, ValidationError } from './errors';
+import { applyCardReview, DUE_CONDITION } from './reviews';
 import type { Deck, Flashcard, QuizQuestion } from './types';
 
 export type SessionStatus = 'active' | 'completed' | 'abandoned';
@@ -150,17 +152,39 @@ export function createSessionApi(
     async startSession(
       deckId: string,
       mode: StudyMode,
-      { shuffle = false, random = Math.random }: { shuffle?: boolean; random?: () => number } = {},
+      {
+        shuffle = false,
+        random = Math.random,
+        dueOnly = false,
+      }: {
+        shuffle?: boolean;
+        random?: () => number;
+        /** Flashcards only: just the cards due for review now (most overdue first, then new). */
+        dueOnly?: boolean;
+      } = {},
     ): Promise<StudySession> {
       if (!STUDY_MODES.includes(mode)) throw new ValidationError({ mode: `Unknown study mode "${String(mode)}".` });
       if (!(await content.getDeck(deckId))) throw new NotFoundError('Deck', deckId);
-      const ids =
-        mode === 'flashcards'
+      if (dueOnly && mode !== 'flashcards') throw new ValidationError({ mode: 'Only flashcards can be reviewed by due date.' });
+      const ids = dueOnly
+        ? (
+            await all<{ id: string }>(
+              `SELECT f.id FROM flashcards f LEFT JOIN card_reviews r ON r.card_id = f.id
+               WHERE f.deck_id = ? AND ${DUE_CONDITION}
+               ORDER BY r.due_at IS NULL, r.due_at, f.position`,
+              [deckId, deps.now()],
+            )
+          ).map((r) => r.id)
+        : mode === 'flashcards'
           ? (await content.listFlashcards(deckId)).map((c) => c.id)
           : (await content.listQuizQuestions(deckId)).map((q) => q.id);
       if (ids.length === 0) {
         throw new ValidationError({
-          items: mode === 'flashcards' ? 'Add some cards before studying.' : 'Add some quiz questions first.',
+          items: dueOnly
+            ? 'Nothing in this deck is due for review right now.'
+            : mode === 'flashcards'
+              ? 'Add some cards before studying.'
+              : 'Add some quiz questions first.',
         });
       }
       const order = shuffle ? shuffled(ids, random) : ids;
@@ -233,8 +257,10 @@ export function createSessionApi(
       if (!inSession) throw new ValidationError({ item: 'That card or question is not part of this session.' });
 
       let isCorrect: boolean;
+      let card: Flashcard | null = null;
       if (session.mode === 'flashcards') {
-        if (!(await content.getFlashcard(itemId))) throw new ValidationError({ item: 'This card was deleted.' });
+        card = await content.getFlashcard(itemId);
+        if (!card) throw new ValidationError({ item: 'This card was deleted.' });
         isCorrect = gradeFlashcard(answer);
       } else {
         const question = await content.getQuizQuestion(itemId);
@@ -250,6 +276,15 @@ export function createSessionApi(
             'INSERT INTO study_attempts (id, session_id, item_id, submitted_answer, is_correct, answered_at) VALUES (?, ?, ?, ?, ?, ?)',
             [id, sessionId, itemId, answer, isCorrect ? 1 : 0, at],
           );
+          // Same transaction: the schedule always reflects exactly the saved answers.
+          if (card) {
+            await applyCardReview(db, {
+              cardId: card.id,
+              deckId: card.deckId,
+              result: answer as FlashcardAnswer,
+              reviewedAt: at,
+            });
+          }
           await run('UPDATE study_sessions SET updated_at = ? WHERE id = ?', [at, sessionId]);
         });
       } catch (error) {

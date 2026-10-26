@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none">
+  <!-- Streak celebration (placeholder): a friendly flame with a trophy-style badge and confetti. Transparent background. -->
+  <ellipse cx="160" cy="210" rx="78" ry="8" fill="#152238" opacity="0.07"/>
+  <path d="M160 30c6 30-18 46-18 70 0 11 7 19 16 19 14 0 19-14 16-30 26 16 46 43 46 72a60 60 0 0 1-60 59 60 60 0 0 1-60-59c0-34 24-53 36-76 8-16 12-36 24-55Z" fill="#FF8066" stroke="#152238" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M160 132c16 12 26 24 26 39a26 26 0 0 1-52 0c0-15 10-27 26-39Z" fill="#FFB547"/>
+  <circle cx="148" cy="172" r="5" fill="#152238"/>
+  <circle cx="172" cy="172" r="5" fill="#152238"/>
+  <path d="M150 186q10 8 20 0" stroke="#152238" stroke-width="4" stroke-linecap="round"/>
+  <rect x="62" y="64" width="12" height="6" rx="3" fill="#18B6A4" transform="rotate(-30 68 67)"/>
+  <rect x="246" y="70" width="12" height="6" rx="3" fill="#FFB547" transform="rotate(25 252 73)"/>
+  <rect x="252" y="150" width="12" height="6" rx="3" fill="#18B6A4" transform="rotate(-20 258 153)"/>
+  <rect x="56" y="150" width="12" height="6" rx="3" fill="#FFB547" transform="rotate(35 62 153)"/>
+  <path d="M240 26q2.4 9.6 12 12q-9.6 2.4-12 12q-2.4-9.6-12-12q9.6-2.4 12-12Z" fill="#FFB547"/>
+  <path d="M84 30q1.6 6.4 8 8q-6.4 1.6-8 8q-1.6-6.4-8-8q6.4-1.6 8-8Z" fill="#18B6A4"/>
+</svg>

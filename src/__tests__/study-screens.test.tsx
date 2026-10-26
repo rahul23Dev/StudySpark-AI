@@ -265,20 +265,17 @@ describe('deck study panel and question editor', () => {
 });
 
 describe('progress tab', () => {
-  it('shows zeros with no sessions and real numbers after one', async () => {
+  it('counts old answers in totals but not in today or the streak', async () => {
     const { repo, deck, cards } = await seeded();
     const session = await repo.startSession(deck.id, 'flashcards');
     await repo.recordAttempt(session.id, cards[0].id, 'know');
     await repo.completeSession(session.id);
     await renderScreen(<ProgressScreen />, repo);
     expect(await screen.findByLabelText('Sessions completed: 1')).toBeTruthy();
-    expect(screen.getByLabelText('Day streak: 0')).toBeTruthy(); // test clock is in 2026-01-01, not today
-  });
-
-  it('starts empty', async () => {
-    const { repo } = await openTestRepository();
-    await renderScreen(<ProgressScreen />, repo);
-    expect(await screen.findByLabelText('Sessions completed: 0')).toBeTruthy();
-    expect(screen.getByText('0 minutes this week')).toBeTruthy();
+    expect(screen.getByLabelText('Cards reviewed: 1')).toBeTruthy();
+    // The test clock is in January 2026, not today.
+    expect(screen.getByLabelText('Study streak: 0 days')).toBeTruthy();
+    expect(screen.getByText('0 of 20 cards today')).toBeTruthy();
   });
 });
+

@@ -5,5 +5,8 @@ export { default as AiSparkIcon } from '@/assets/icons/ai-spark.svg';
 export { default as Logo } from '@/assets/branding/logo.svg';
 export { default as CheckAnswerIcon } from '@/assets/icons/check-answer.svg';
 export { default as DeckFolderIcon } from '@/assets/icons/deck.svg';
+export { default as ProgressChartIcon } from '@/assets/icons/progress-chart.svg';
 export { default as QuizIcon } from '@/assets/icons/quiz.svg';
+export { default as ReviewCalendarIcon } from '@/assets/icons/review-calendar.svg';
 export { default as RotateCardIcon } from '@/assets/icons/rotate-card.svg';
+export { default as StreakIcon } from '@/assets/icons/streak.svg';

@@ -24,3 +24,15 @@ export function fieldErrors(error: unknown): Record<string, string> | null {
   }
   return null;
 }
+
+/** When a card is next due: "Due now", "Due in 10 minutes", "Due in 5 hours", or "Due 3 Nov". */
+export function dueLabel(dueAt: string | null, now = new Date()): string {
+  if (dueAt === null) return 'New card · due now';
+  const ms = new Date(dueAt).getTime() - now.getTime();
+  if (Number.isNaN(ms) || ms <= 0) return 'Due now';
+  const minutes = Math.ceil(ms / 60_000);
+  if (minutes < 60) return `Due in ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `Due in ${hours} ${hours === 1 ? 'hour' : 'hours'}`;
+  return `Due ${shortDate(dueAt, now)}`;
+}

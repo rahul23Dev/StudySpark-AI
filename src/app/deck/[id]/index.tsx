@@ -21,6 +21,7 @@ import { useRepository } from '@/data/database-context';
 import { useFocusQuery } from '@/data/use-query';
 import { FlashcardItem } from '@/features/decks/flashcard-item';
 import { QuestionItem } from '@/features/decks/question-item';
+import { ReviewPanel } from '@/features/study/review-panel';
 import { StudyPanel } from '@/features/study/study-panel';
 import { cardCountLabel, shortDate } from '@/features/decks/format';
 import { spacing } from '@/theme';
@@ -34,17 +35,20 @@ export default function DeckDetailScreen() {
   const repo = useRepository();
 
   const load = useCallback(async () => {
-    const [deck, cards, questions, flash, quiz] = await Promise.all([
+    const [deck, cards, questions, flash, quiz, dueCards] = await Promise.all([
       repo.getDeck(id),
       repo.listFlashcards(id),
       repo.listQuizQuestions(id),
       repo.getActiveSession(id, 'flashcards'),
       repo.getActiveSession(id, 'quiz'),
+      repo.listDueCards({ now: new Date(), deckId: id }),
     ]);
     if (!deck) return null;
     const summary = async (s: typeof flash) =>
       s ? { id: s.id, score: (await repo.getSessionDetail(s.id)).score } : null;
-    return { deck, cards, questions, activeFlashcards: await summary(flash), activeQuiz: await summary(quiz) };
+    const newCards = dueCards.filter((c) => c.dueAt === null).length;
+    const review = { due: dueCards.length - newCards, newCards, scheduled: cards.length - newCards };
+    return { deck, cards, questions, review, activeFlashcards: await summary(flash), activeQuiz: await summary(quiz) };
   }, [repo, id]);
   const query = useFocusQuery(load);
 
@@ -52,10 +56,12 @@ export default function DeckDetailScreen() {
     params.created === '1' ? 'created' : params.duplicated === '1' ? 'duplicated' : null,
   );
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [busy, setBusy] = useState<'delete' | 'duplicate' | 'move' | 'study' | null>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [resetCount, setResetCount] = useState<number | null>(null);
+  const [busy, setBusy] = useState<'delete' | 'duplicate' | 'move' | 'study' | 'reset' | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
-  async function act(kind: 'delete' | 'duplicate' | 'move' | 'study', task: () => Promise<void>, failure: string) {
+  async function act(kind: 'delete' | 'duplicate' | 'move' | 'study' | 'reset', task: () => Promise<void>, failure: string) {
     setBusy(kind);
     setActionError(null);
     try {
@@ -89,7 +95,7 @@ export default function DeckDetailScreen() {
     );
   }
 
-  const { deck, cards, questions, activeFlashcards, activeQuiz } = query.data;
+  const { deck, cards, questions, review, activeFlashcards, activeQuiz } = query.data;
 
   return container(
     <>
@@ -177,6 +183,30 @@ export default function DeckDetailScreen() {
         }
       />
 
+      <ReviewPanel
+        counts={review}
+        busy={busy !== null}
+        onReview={() =>
+          act(
+            'study',
+            async () => {
+              const session = await repo.startSession(id, 'flashcards', { dueOnly: true });
+              router.push(`/session/${session.id}`);
+            },
+            "Couldn't start the review. Please try again.",
+          )
+        }
+        onReset={() => {
+          setResetCount(null);
+          setConfirmReset(true);
+        }}
+      />
+      {resetCount !== null ? (
+        <AppText variant="caption" color="textMuted" accessibilityLiveRegion="polite">
+          {`Schedule reset. ${cardCountLabel(resetCount)} ${resetCount === 1 ? 'is' : 'are'} new again.`}
+        </AppText>
+      ) : null}
+
       <View style={styles.cardsHeader}>
         <SectionTitle>{`Cards (${cards.length})`}</SectionTitle>
         <Button
@@ -243,6 +273,25 @@ export default function DeckDetailScreen() {
           ))}
         </View>
       )}
+
+      <ConfirmDialog
+        visible={confirmReset}
+        title="Reset review schedule?"
+        message="Every card in this deck becomes new and due now. Your past answers and progress stay."
+        confirmLabel="Reset schedule"
+        busy={busy === 'reset'}
+        onCancel={() => setConfirmReset(false)}
+        onConfirm={() =>
+          act(
+            'reset',
+            async () => {
+              setResetCount(await repo.resetDeckSchedule(id));
+              await query.reload();
+            },
+            "Couldn't reset the schedule. Please try again.",
+          ).then(() => setConfirmReset(false))
+        }
+      />
 
       <ConfirmDialog
         visible={confirmDelete}

@@ -11,6 +11,7 @@ import {
   type QuizQuestion,
   type QuizQuestionInput,
 } from './types';
+import { createReviewApi } from './reviews';
 import { createSessionApi } from './sessions';
 import { LIMITS, validateDeckInput, validateFlashcardInput, validateQuizQuestionInput } from './validation';
 
@@ -468,5 +469,5 @@ export function createStudyRepository(connection: SqlDatabase, deps: RepositoryD
     },
   };
 
-  return { ...content, ...createSessionApi(db, deps, content) };
+  return { ...content, ...createSessionApi(db, deps, content), ...createReviewApi(db, deps) };
 }
